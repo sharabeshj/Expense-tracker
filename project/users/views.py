@@ -28,7 +28,7 @@ def get_all_users(current_user):
 
 @users_blueprint.route('/user/<public_id>',methods = ['GET'])
 @token_required
-def get_one_user(current_user,cpublic_id):
+def get_one_user(current_user,public_id):
     if not current_user.admin:
         return jsonify({'message' : 'Cannot perform that action'})
         
