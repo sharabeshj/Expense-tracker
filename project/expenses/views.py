@@ -1,11 +1,12 @@
-from flask import Blueprint,request,jsonify,make_response
+from flask import Blueprint,request,jsonify
 from project.models import Expense
-from project import db
+from project import db,token_required
 
 
 expenses_blueprint = Blueprint('expenses',__name__)
 
-@expenses_blueprint.route('/',methods = ['GET'])
+@expenses_blueprint.route('/expenses',methods = ['GET'])
+@token_required
 def get_all_expenses():
     expenses = Expense.query.all()
 
@@ -21,7 +22,8 @@ def get_all_expenses():
 
     return jsonify({'expenses' : output})
 
-@expenses_blueprint.route('/<expense_id>',methods = ['GET'])
+@expenses_blueprint.route('/expense/<expense_id>',methods = ['GET'])
+@token_required
 def get_one_expense(expense_id):
     expense = Expense.query.filter_by(expense_id = expense_id)
 
@@ -37,7 +39,8 @@ def get_one_expense(expense_id):
 
     return jsonify({'expense' : expense_data})
 
-@expenses_blueprint.route('/',methods = ['POST'])
+@expenses_blueprint.route('/expenses',methods = ['POST'])
+@token_required
 def create_expense():
     data = request.get_json()
 
@@ -47,7 +50,8 @@ def create_expense():
 
     return jsonify({'message' : 'New expense has been created'})
 
-@expenses_blueprint.route('/<expense_id>',methods = ['PUT'])
+@expenses_blueprint.route('/expense/<expense_id>',methods = ['PUT'])
+@token_required
 def edit_expense(expense_id):
     data = request.get_json()
 
@@ -65,7 +69,8 @@ def edit_expense(expense_id):
 
     return jsonify({'message' : 'expense has been updated'})
 
-@expenses_blueprint.route('/<expense_id>',methods = ['DELETE'])
+@expenses_blueprint.route('/expense/<expense_id>',methods = ['DELETE'])
+@token_required
 def delete_expense(expense_id):
     expense = Expense.query.filter_by(expense_id = expense_id).first()
 

@@ -1,13 +1,14 @@
-from flask import Blueprint,request,jsonify,make_response
-from project  import db
+from flask import Blueprint,request,jsonify
+from project  import db,token_required
 from project.models import User
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash
 import uuid
 import datetime
 
 users_blueprint = Blueprint('users',__name__)
 
-@users_blueprint.route('/',methods = ['GET'])
+@users_blueprint.route('/users',methods = ['GET'])
+@token_required
 def get_all_users():
     users = User.query.all()
     output = []
@@ -21,7 +22,8 @@ def get_all_users():
     
     return jsonify({'users' : output})
 
-@users_blueprint.route('/<public_id>',methods = ['GET'])
+@users_blueprint.route('/user/<public_id>',methods = ['GET'])
+@token_required
 def get_one_user(public_id):
     user = User.query.filter_by(public_id = public_id).first()
 
@@ -35,9 +37,10 @@ def get_one_user(public_id):
 
     return jsonify({'user' : user_data})
 
-@users_blueprint.route('/',methods = ['POST'])
+@users_blueprint.route('/users',methods = ['POST'])
+@token_required
 def create_user():
-    data = request.get_json()
+    data = request.get_json(force = True)
 
     hashed_password = generate_password_hash(data['password'],method = 'sha256')
 
@@ -47,7 +50,8 @@ def create_user():
 
     return jsonify({'message' : 'new user created'})
 
-@users_blueprint.route('/<public_id>',methods = ['PUT'])
+@users_blueprint.route('/user/<public_id>',methods = ['PUT'])
+@token_required
 def promote_user(public_id):
     user = User.query.filter_by(public_id = public_id).first()
     
@@ -59,7 +63,8 @@ def promote_user(public_id):
 
     return jsonify({'message' : 'the user has been promoted'})
 
-@users_blueprint.route('/<public_id>',methods = ['DELETE'])
+@users_blueprint.route('/user/<public_id>',methods = ['DELETE'])
+@token_required
 def delete_user(public_id):
     user = User.query.filter_by(public_id = public_id).first()
 
