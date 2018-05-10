@@ -1,5 +1,24 @@
 from project import  db
 
+class User(db.Model):
+    __tablename__ = "users"
+    
+    id = db.Column(db.Integer,primary_key = True)
+    public_id = db.Column(db.String(50),unique = True)
+    email = db.Column(db.String,unique = True, nullable = False)
+    password = db.Column(db.String,nullable = False)
+    admin = db.Column(db.Boolean)
+    expense = db.relationship('Expense',backref = 'user',lazy = True)
+
+    def __init__(self,public_id,email,password,admin):
+        self.public_id = public_id
+        self.email = email
+        self.password = password
+        self.admin = admin
+
+    def __repr__(self):
+        return 'User {}'.format(self.public_id)
+
 class Expense(db.Model):
     __tablename__ = "expenses"
 
@@ -9,6 +28,7 @@ class Expense(db.Model):
     details = db.Column(db.String)
     amount = db.Column(db.Integer)
     source = db.Column(db.String)
+    user_id = db.Column(db.Integer,db.ForeignKey('users.id'),nullable = False)
 
     def  __init__(self,expense_id,date,details,amount,source):
         self.expense_id = expense_id
@@ -20,20 +40,3 @@ class Expense(db.Model):
     def __repr__(self):
         return 'id {}'.format(self.id)
 
-class User(db.Model):
-    __tablename__ = "users"
-    
-    id = db.Column(db.Integer,primary_key = True)
-    public_id = db.Column(db.String(50),unique = True)
-    email = db.Column(db.String,unique = True, nullable = False)
-    password = db.Column(db.String,nullable = False)
-    admin = db.Column(db.Boolean)
-
-    def __init__(self,public_id,email,password,admin):
-        self.public_id = public_id
-        self.email = email
-        self.password = password
-        self.admin = admin
-
-    def __repr__(self):
-        return 'User {}'.format(self.public_id)
