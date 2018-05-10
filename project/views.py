@@ -2,7 +2,7 @@ from flask import request,make_response,jsonify
 from werkzeug.security import check_password_hash
 import jwt
 import datetime
-from project import app
+from . import app
 from project.models import User
 
 @app.route('/')
@@ -13,10 +13,10 @@ def welcome():
 def login():
     auth = request.authorization
 
-    if not auth or not auth.email or not auth.password:
+    if not auth or not auth.username or not auth.password:
         return make_response('Could not verify',401,{'WWW-Authenticate' : 'Basic realm="Login required"'})
 
-    user = User.query.filter_by(email = auth.email).first()
+    user = User.query.filter_by(email = auth.username).first()
 
     if not user:
         return make_response('Could not verify',401,{'WWW-Authenticate' : 'Basic realm="Login required"'})

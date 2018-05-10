@@ -2,8 +2,6 @@
 from flask import Flask,jsonify,request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from . import views
-from .models import User
 from functools import wraps
 import jwt
 
@@ -13,6 +11,8 @@ app.config.from_pyfile('flask.cfg')
 
 db = SQLAlchemy(app) 
 migrate = Migrate(app,db)
+
+from .models import User
 
 #token_required
 def token_required(f):
@@ -34,6 +34,8 @@ def token_required(f):
         return f(current_user,*args,**kwargs)
 
     return decorated
+
+from . import views
 
 #blueprints 
 from project.users.views import users_blueprint

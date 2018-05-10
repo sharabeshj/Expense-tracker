@@ -1,4 +1,4 @@
-from project import  db
+from . import  db
 
 class User(db.Model):
     __tablename__ = "users"
@@ -30,12 +30,13 @@ class Expense(db.Model):
     source = db.Column(db.String)
     user_id = db.Column(db.Integer,db.ForeignKey('users.id'),nullable = False)
 
-    def  __init__(self,expense_id,date,details,amount,source):
+    def  __init__(self,expense_id,date,details,amount,source,user_id):
         self.expense_id = expense_id
         self.data = date
         self.details = details
         self.amount = amount
         self.source = source
+        self.user_id = user_id
 
     def __repr__(self):
         return 'id {}'.format(self.id)

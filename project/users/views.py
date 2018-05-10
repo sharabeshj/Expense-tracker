@@ -5,11 +5,15 @@ from werkzeug.security import generate_password_hash
 import uuid
 import datetime
 
+
 users_blueprint = Blueprint('users',__name__)
 
 @users_blueprint.route('/users',methods = ['GET'])
 @token_required
-def get_all_users():
+def get_all_users(current_user):
+    if not current_user.admin:
+        return jsonify({'message' : 'Cannot perform that action'})
+
     users = User.query.all()
     output = []
 
@@ -24,7 +28,10 @@ def get_all_users():
 
 @users_blueprint.route('/user/<public_id>',methods = ['GET'])
 @token_required
-def get_one_user(public_id):
+def get_one_user(current_user,cpublic_id):
+    if not current_user.admin:
+        return jsonify({'message' : 'Cannot perform that action'})
+        
     user = User.query.filter_by(public_id = public_id).first()
 
     if not user:
@@ -39,7 +46,10 @@ def get_one_user(public_id):
 
 @users_blueprint.route('/users',methods = ['POST'])
 @token_required
-def create_user():
+def create_user(current_user):
+    if not current_user.admin:
+        return jsonify({'message' : 'Cannot perform that action'})
+
     data = request.get_json(force = True)
 
     hashed_password = generate_password_hash(data['password'],method = 'sha256')
@@ -52,7 +62,7 @@ def create_user():
 
 @users_blueprint.route('/user/<public_id>',methods = ['PUT'])
 @token_required
-def promote_user(public_id):
+def promote_user(current_user,public_id):
     user = User.query.filter_by(public_id = public_id).first()
     
     if not user:
@@ -65,7 +75,10 @@ def promote_user(public_id):
 
 @users_blueprint.route('/user/<public_id>',methods = ['DELETE'])
 @token_required
-def delete_user(public_id):
+def delete_user(current_user,public_id):
+    if not current_user.admin:
+        return jsonify({'message' : 'Cannot perform that action'})
+        
     user = User.query.filter_by(public_id = public_id).first()
 
     if not user:
