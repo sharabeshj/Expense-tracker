@@ -1,4 +1,4 @@
-from flask import request,make_response,jsonify
+from flask import request,make_response,jsonify,render_template
 from werkzeug.security import check_password_hash
 import jwt
 import datetime
@@ -7,7 +7,7 @@ from project.models import User
 
 @app.route('/')
 def welcome():
-    return jsonify({'message': 'Welcome to our api'})
+    return render_template("index.html")
 
 @app.route('/login')
 def login():
