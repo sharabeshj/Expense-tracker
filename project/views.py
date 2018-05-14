@@ -5,11 +5,7 @@ import datetime
 from . import app
 from project.models import User
 
-@app.route('/')
-def welcome():
-    return render_template("index.html")
-
-@app.route('/login')
+@app.route('/obtain-auth')
 def login():
     auth = request.authorization
 
@@ -27,3 +23,4 @@ def login():
         return jsonify({'token' : token.decode('UTF-8')})
 
     return make_response('Could not verify',401,{'WWW-Authenticate' : 'Basic realm="Login required"'})
+

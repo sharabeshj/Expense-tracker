@@ -11,3 +11,6 @@ __pycache__/
  
 # Instance Folder - used for configuration parameters
 /instance
+
+#node_modules
+node_modules/

@@ -6,13 +6,14 @@ from functools import wraps
 import jwt
 
 #config
-app = Flask(__name__,instance_relative_config=True,static_folder="./static/dist",template_folder="./static")
+app = Flask(__name__,instance_relative_config=True)
 app.config.from_pyfile('flask.cfg')
 
 db = SQLAlchemy(app) 
 migrate = Migrate(app,db)
 
 from .models import User
+from . import views
 
 #token_required
 def token_required(f):
@@ -35,11 +36,11 @@ def token_required(f):
 
     return decorated
 
-from . import views
-
 #blueprints 
 from project.users.views import users_blueprint
 from project.expenses.views import expenses_blueprint
 
 app.register_blueprint(users_blueprint)
 app.register_blueprint(expenses_blueprint)
+
+
