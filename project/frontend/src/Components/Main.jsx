@@ -1,27 +1,28 @@
-import React,{ Component } from "react";
+import React from "react";
 import { Route,Switch,Redirect } from "react-router-dom";
-import Home from "../Containers/Home";
+import Home from "./Home/Home";
 import Expenses from "../Containers/Expenses";
-import Login from "../Containers/Login"
+import Login from "../Containers/Login";
+import Aux from "../hoc/Aux/Aux";
 
-const auth = require("./auth");
+const auth = require("../Components/auth")
 
-export default class Main extends Component {
-    render(){
-        return (
-            <div>
-                <Switch>
-                    <Route path = '/login' component = {Login}/>
-                    <Route path = '/expenses' render = {() => (
-                        auth.loggedIn() ? (
+const main = (props) => {
+    return (
+        <Aux>
+            <Switch>
+                <Route path = '/login' component = {Login}/>
+                <Route path = '/expenses' render = {() => (
+                    auth.loggedIn() ? (
                             <Expenses />
-                        ) : (
-                            <Redirect to= "/login" />
-                        )
-                    )}/>
-                    <Route exact path = "/" component = {Home} />
-                </Switch>
-            </div>
-        );
-    }
+                    ) : (
+                        <Redirect to= "/login" />
+                    )
+                )}/>
+                <Route exact path = "/" component = {Home} />
+            </Switch>
+        </Aux>
+    )
 }
+
+export default main;

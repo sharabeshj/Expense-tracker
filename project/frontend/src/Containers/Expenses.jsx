@@ -1,7 +1,7 @@
-import React,{ Component } from "react";
+import React,{Component} from "react";
 
-export default class Expenses extends Component {
+export default class Expense extends Component {
     render(){
-        return <div><p>hi</p></div>
+        return <div></div>
     }
 }

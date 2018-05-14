@@ -1,19 +1,16 @@
 import React from "react";
-import { NavLink } from 'react-router-dom';
 import Main from "./Components/Main.jsx";
+import Aux from "./hoc/Aux/Aux";
+import Layout from "./Components/Layout/Layout";
 
 export default class App extends React.Component {
     render(){
         return (
-            <div>
-                <header>
-                    <ul>
-                        <li><NavLink to = "/">Home</NavLink></li>
-                        <li><NavLink to = "/expenses">Expenses</NavLink></li>
-                    </ul>
-                </header>
-                <Main />
-            </div>
+            <Aux>
+                <Layout>
+                    <Main />
+                </Layout>
+            </Aux>
         );
     }
 }
