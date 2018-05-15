@@ -1,9 +1,10 @@
 import React,{ Component } from "react";
 import SingleInput from "../Components/SingleInput";
+import { connect } from 'react-redux';
+import { loginClick } from '../store/Actions/ActionCreator';
+import Aux from '../hoc/Aux/Aux';
 
-const auth = require("../Components/auth")
-
-export default class Login extends Component{
+class Login extends Component{
     constructor(props){
         super(props);
         this.state = {
@@ -17,11 +18,7 @@ export default class Login extends Component{
     handleSubmit(e){
         const username = this.state.username;
         const password = this.state.password;
-        auth.login(username,password,(loggedIn) => {
-            if(loggedIn){
-                this.props.history.replace("/expenses");
-            }
-        });
+        this.props.loginHandler({ username : username,password : password});
     }
     handleEmail(e){
         this.setState({ username : e.target.value });
@@ -29,27 +26,49 @@ export default class Login extends Component{
     handlePassword(e){
         this.setState({ password : e.target.value });
     }
+    componentWillMount(){
+        if(this.props.authenticated === true ) this.props.history.replace('/expenses');
+    }
+    componentWillReceiveProps(nextProps){
+        if(nextProps.authenticated === true){
+            this.props.history.replace('/expenses');
+        }
+    }
     render (){
         return (
-            <form onSubmit = { this.handleSubmit }>
-                <SingleInput
-                    inputType = {'text'}
-                    title = {'Email'}
-                    name = {'Email'}
-                    content = { this.state.username }
-                    controlFunc = { this.handleEmail }
-                    placeholder = { 'Enter email address '}
-                />
-                <SingleInput 
-                    inputType = { 'password' }
-                    title = { 'Password' }
-                    name = { 'Password' }
-                    content = { this.state.password }
-                    controlFunc = { this.handlePassword }
-                    placeholder = { 'Enter your password '} 
-                />
-                <input type = "submit" />
-            </form>
+                <Aux>    
+                    <SingleInput
+                        inputType = {'text'}
+                        title = {'Email'}
+                        name = {'Email'}
+                        content = { this.state.username }
+                        controlFunc = { this.handleEmail }
+                        placeholder = { 'Enter email address '}
+                    />
+                    <SingleInput 
+                        inputType = { 'password' }
+                        title = { 'Password' }
+                        name = { 'Password' }
+                        content = { this.state.password }
+                        controlFunc = { this.handlePassword }
+                        placeholder = { 'Enter your password '} 
+                    />
+                    <button onClick = { this.handleSubmit }>submit</button>
+                </Aux>
         );
     }
 }
+
+const mapStateToProps = state => {
+    return {
+        authenticated : state.log.authenticated
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        loginHandler : (data) => dispatch(loginClick(data))
+    }
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(Login);
