@@ -4,15 +4,36 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from functools import wraps
 import jwt
+# from authlib.flask.client import OAuth
+import json 
+from sqlalchemy.ext import mutable
 
 #config
 app = Flask(__name__,instance_relative_config=True)
 app.config.from_pyfile('flask.cfg')
 
+
 db = SQLAlchemy(app) 
 migrate = Migrate(app,db)
 
-from .models import User
+class JsonEncodeDict(db.TypeDecorator):
+    impl = db.Text
+
+    def process_bind_param(self,value,dialect):
+        if value is None:
+            return '{}'
+        else :
+            return json.dumps(value)
+    
+    def process_result_value(self,value,dialect):
+        if value is None:
+            return {}
+        else: 
+            return json.loads(value)
+
+mutable.MutableDict.associate_with(JsonEncodeDict)
+
+from .models import User,OAuth2Token
 from . import views
 
 #token_required
@@ -35,6 +56,22 @@ def token_required(f):
         return f(current_user,*args,**kwargs)
 
     return decorated
+
+# #oauth_config
+# oauth = OAuth(app)
+
+# oauth.register('fyle',
+#     client_id = 'tpaWTytgNOxUO',
+#     client_secret = 'sharabesh',
+#     request_token_url = 'https://staging.fyle.in/api/oauth/token',
+#     request_token_params = { 'code': code, client_id: client_id, client_secret: client_secret, grant_type: ‘authorization_code’ }
+#     access_token_url = 'https://staging.fyle.in/api/oauth/token',
+#     access_token_params = { client_id : client_id,client_secret : client_secret,grant_type : refresh_token,refresh_token : fetch_token },
+#     refresh_token_url = 'https://staging.fyle.in/api/oauth/token',
+#     authorize_url = 'https://staging.fyle.in/#/simple/oauth?client_id=client_id',
+#     api_base_url = 'https://staging.fyle.in/api',
+#     fetch_token = fetch_token
+# )
 
 #blueprints 
 from project.users.views import users_blueprint

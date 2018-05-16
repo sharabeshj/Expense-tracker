@@ -13,11 +13,7 @@ def get_all_expenses(current_user):
     output = []
 
     for expense in expenses:
-        expense_data = {}
-        expense_data['date'] = expense.date
-        expense_data['details'] = expense.details
-        expense_data['amount'] = expense.amount
-        expense_data['source'] = expense.source
+        expense_data = expense.expense_details
         output.append(expense_data)
 
     return jsonify({'expenses' : output})
@@ -30,12 +26,7 @@ def get_one_expense(current_user,expense_id):
     if not expense:
         return jsonify({'message' : 'No expenses to show'})
         
-    expense_data = {}
-    expense_data['expense_id'] = expense.expense_id
-    expense_data['date'] = expense.date
-    expense_data['details'] = expense.details
-    expense_data['amount'] = expense.amount
-    expense_data['source'] = expense.source
+    expense_data = expense.expense_details
 
     return jsonify({'expense' : expense_data})
 
@@ -60,11 +51,7 @@ def edit_expense(current_user,expense_id):
     if not expense:
         return jsonify({'message' : 'No expense found'})
     
-    expense.date = data['date']
-    expense.details = data['details']
-    expense.amount = data['amount']
-    expense.source =data['source']
-
+    expense.expense_details = data
     db.session.commit()
 
     return jsonify({'message' : 'expense has been updated'})

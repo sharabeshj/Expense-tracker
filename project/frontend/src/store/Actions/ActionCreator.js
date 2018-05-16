@@ -30,8 +30,21 @@ const validate = (data) => {
 export const loginClick = (data) => {
     return (dispatch,getState) => dispatch(validate(data))
 }
+
 export const logout = () => {
     return {
         type : ActionTypes.LOGOUT
+    }
+}
+
+export const drawerOpen = () => {
+    return {
+        type : ActionTypes.DRAWER_OPEN
+    }
+}
+
+export const drawerClose = () => {
+    return {
+        type : ActionTypes.DRAWER_CLOSE
     }
 }

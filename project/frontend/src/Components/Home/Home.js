@@ -15,7 +15,7 @@ const styles = theme => ({
     },
     root : {
         width: '100%',
-        margin : 'auto',
+        margin : '32px auto',
         textAlign : 'center'
     },
     buttonFyle : {
