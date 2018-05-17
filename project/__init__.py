@@ -4,34 +4,17 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from functools import wraps
 import jwt
-# from authlib.flask.client import OAuth
-import json 
-from sqlalchemy.ext import mutable
+
 
 #config
 app = Flask(__name__,instance_relative_config=True)
 app.config.from_pyfile('flask.cfg')
 
 
-db = SQLAlchemy(app) 
+db = SQLAlchemy(app)
+ 
 migrate = Migrate(app,db)
 
-class JsonEncodeDict(db.TypeDecorator):
-    impl = db.Text
-
-    def process_bind_param(self,value,dialect):
-        if value is None:
-            return '{}'
-        else :
-            return json.dumps(value)
-    
-    def process_result_value(self,value,dialect):
-        if value is None:
-            return {}
-        else: 
-            return json.loads(value)
-
-mutable.MutableDict.associate_with(JsonEncodeDict)
 
 from .models import User
 from . import views

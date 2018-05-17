@@ -1,4 +1,6 @@
-from . import  db,JsonEncodeDict
+from . import  db
+from sqlalchemy.dialects.postgresql import JSON
+
 
 class User(db.Model):
     __tablename__ = "users"
@@ -19,20 +21,17 @@ class User(db.Model):
     def __repr__(self):
         return 'User {}'.format(self.public_id)
 
+
 class Expense(db.Model):
     __tablename__ = "expenses"
 
     id = db.Column(db.Integer,primary_key = True)
-    expense_details = db.Column(JsonEncodeDict)
+    expense_details = db.Column(JSON)
     user_id = db.Column(db.Integer,db.ForeignKey('users.id'),nullable = False)
 
-    def  __init__(self,expense_id,date,details,amount,source,user_id):
+    def  __init__(self,expense_details,expense_id):
         self.expense_id = expense_id
-        self.data = date
-        self.details = details
-        self.amount = amount
-        self.source = source
-        self.user_id = user_id
+        self.expense_details = expense_details
 
     def __repr__(self):
         return 'id {}'.format(self.id)

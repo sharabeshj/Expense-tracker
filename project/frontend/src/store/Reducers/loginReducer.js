@@ -1,6 +1,6 @@
 import * as ActionTypes from '../Actions/Actions';
 
-const loginHandler = (state = { authenticated : false },action) => {
+const loginHandler = (state = { authenticated :false },action) => {
     switch(action.type){
         case ActionTypes.LOGIN :
             return {

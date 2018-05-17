@@ -1,6 +1,6 @@
 import * as ActionTypes from '../Actions/Actions';
 
-const drawerHandler = (state = { open  : false},action) => {
+const drawerHandler = (state = { open : false },action) => {
     switch(action.type){
         case ActionTypes.DRAWER_OPEN:
             return {
