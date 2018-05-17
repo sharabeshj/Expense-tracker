@@ -33,7 +33,7 @@ class JsonEncodeDict(db.TypeDecorator):
 
 mutable.MutableDict.associate_with(JsonEncodeDict)
 
-from .models import User,OAuth2Token
+from .models import User
 from . import views
 
 #token_required
