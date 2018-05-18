@@ -48,3 +48,7 @@ export const drawerClose = () => {
         type : ActionTypes.DRAWER_CLOSE
     }
 }
+
+export const loginFyle = () => {
+    
+}
