@@ -6,18 +6,15 @@ class LoginFyle extends Component{
     constructor(props){
         super(props);
         this.state = {
-            client : {
-                client_id : '',
-                client_secret : ''
-            }
+            client_id : '',
+            client_secret : ''
         }
     }
-    handleChange = (e,name) => {
-        const updatedState = {
-            ...this.state.client
-        }
-        updatedState[name] = e.target.value;
-        this.setState({ client : updatedState })
+    handleIdChange = (e) => {
+        this.setState({ client_id : e.target.value });
+    }
+    handleSecretChange=(e) => {
+        this.setState({ client_secret : e.target.value });
     }
     render(){
     return (
@@ -26,17 +23,17 @@ class LoginFyle extends Component{
                 inputType = 'text'
                 title = "Client ID"
                 name = 'client_id'
-                controlFunc = {this.handleChange }
-                content = { this.state.client.client_id}
+                controlFunc = {this.handleIdChange }
+                content = { this.state.client_id}
                 placeHolder = 'Enter your ID'/>
             <SingleInput 
                 inputType = 'text'
                 title = 'Client Secret'
-                controlFunc = {this.handleChange}
+                controlFunc = {this.handleSecretChange}
                 name = 'client_secret'
-                content = { this.state.client.client_secret}
+                content = { this.state.client_secret}
                 placeHolder = 'Enter your secret'/>
-            <Link to = {'/redirect'+this.state.client.client_id} ><button >Continue</button></Link>
+            <Link to = {'/expenses/redirect/'+this.state.client_id} ><button >Continue</button></Link>
         </div>
     )
 }

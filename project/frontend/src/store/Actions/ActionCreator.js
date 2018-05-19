@@ -49,6 +49,15 @@ export const drawerClose = () => {
     }
 }
 
-export const loginFyle = () => {
-    
+export const authCodeHandler = (code) => {
+    return {
+        type : ActionTypes.AUTH_CODE,
+        code
+    }
+}
+
+export const logoutFyle = () => {
+    return {
+        type : ActionTypes.LOGOUT_FYLE
+    }
 }
