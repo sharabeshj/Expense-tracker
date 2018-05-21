@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from 'react-redux';
-import { logout,authCodeHandler } from '../store/Actions/ActionCreator';
+import { logout,authCodeHandler,logoutFyle } from '../store/Actions/ActionCreator';
 import Index from '../Components/ExpenseDetails/Index';
 import Switch from '@material-ui/core/Switch';
 import { Switch as Sw,Route } from 'react-router-dom';
@@ -15,6 +15,7 @@ const queryString = require('query-string');
 class Expense extends Component {
     handleLogout = (e) => {
         this.props.logoutHandler();
+        this.props.logoutFyle();
     }
     componentDidMount(){
         if(!!this.props.location.search){
@@ -69,7 +70,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = (dispatch) => {
     return {
         logoutHandler: () => dispatch(logout()),
-        authCodeHandler : (code) => dispatch(authCodeHandler(code))
+        authCodeHandler : (code) => dispatch(authCodeHandler(code)),
+        logoutFyle : () => dispatch(logoutFyle())
     }
 }
 

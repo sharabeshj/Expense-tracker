@@ -12,7 +12,9 @@ const state = loadState();
 const store = configureStore(state);
 
 store.subscribe(() => {
-    storeState(store.getState())
+    storeState({
+        log : store.getState().log
+    });
 })
 
 ReactDOM.render(<Provider store = { store }><BrowserRouter><App /></BrowserRouter></Provider>, document.getElementById('root'));

@@ -5,12 +5,12 @@ const authCodeHandler = (state = { authCode : ''},action) => {
         case ActionTypes.AUTH_CODE:
             return {
                 ...state,
-                code : action.code
+                authCode : action.code
             }
         case ActionTypes.LOGOUT_FYLE:
             return {
                 ...state,
-                code : null
+                authCode : null
             }
         default : 
             return state

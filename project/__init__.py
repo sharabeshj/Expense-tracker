@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from functools import wraps
 import jwt
+from authlib.flask.client import OAuth
 
 
 #config
@@ -12,7 +13,7 @@ app.config.from_pyfile('flask.cfg')
 
 
 db = SQLAlchemy(app)
- 
+oauth = OAuth()
 migrate = Migrate(app,db)
 
 
@@ -41,7 +42,7 @@ def token_required(f):
     return decorated
 
 # #oauth_config
-# oauth = OAuth(app)
+oauth.init_app(app)
 
 # oauth.register('fyle',
 #     client_id = 'tpaWTytgNOxUO',
