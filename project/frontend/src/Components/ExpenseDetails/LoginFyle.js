@@ -1,6 +1,5 @@
 import React,{ Component } from 'react';
 import SingleInput from '../../Components/SingleInput'; 
-import { Link } from 'react-router-dom';
 
 class LoginFyle extends Component{
     constructor(props){
@@ -9,6 +8,12 @@ class LoginFyle extends Component{
             client_id : '',
             client_secret : ''
         }
+    }
+    handleClick = e => {
+        e.preventDefault();
+        const serialisedState = JSON.stringify(this.state)
+        localStorage.setItem('tempDetails',serialisedState)
+        this.props.history.replace('/expenses/redirect/'+this.state.client_id);
     }
     handleIdChange = (e) => {
         this.setState({ client_id : e.target.value });
@@ -33,7 +38,7 @@ class LoginFyle extends Component{
                 name = 'client_secret'
                 content = { this.state.client_secret}
                 placeHolder = 'Enter your secret'/>
-            <Link to = {'/expenses/redirect/'+this.state.client_id} ><button >Continue</button></Link>
+            <button onClick = { this.handleClick }>Continue</button>
         </div>
     )
 }

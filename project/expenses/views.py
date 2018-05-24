@@ -1,9 +1,63 @@
-from flask import Blueprint,request,jsonify
-from project.models import Expense
+from flask import Blueprint,request,jsonify,make_response
+from project.models import Expense,Fyle_tokens
 from project import db,token_required
+import requests
+import json
+from werkzeug.wrappers import Response
+import datetime
 
 
 expenses_blueprint = Blueprint('expenses',__name__)
+
+@expenses_blueprint.route('/expensesToken',methods = ['POST'])
+@token_required
+def TokenGen(current_user):
+    data = request.data
+    headers = request.headers
+    res = requests.post(url='https://staging.fyle.in/api/oauth/token',headers = headers,data = data)
+    fyle_token = Fyle_tokens.query.filter_by(user_id = current_user.id).first()
+    if not fyle_token:
+        new_fyle_token =  Fyle_tokens(user_id = current_user.id,created_at = datetime.datetime.now(),updated_at = datetime.datetime.now(),tokens = res.text)
+        db.session.add(new_fyle_token)
+        db.session.commit()
+        return jsonify({ "message" : "Token saved" })
+    resDict = json.loads(res.text)
+    tokens = json.loads(fyle_token.tokens)
+    tokens['refresh_token'] = resDict['refresh_token']
+    tokens['access_token'] = resDict['access_token']
+    fyle_token.token = json.dumps(tokens)
+    db.session.commit()
+
+    return jsonify({ "message" : "Token saved" })
+
+@expenses_blueprint.route('/expensesRefresh',methods = ['POST'])
+@token_required
+def RefreshToken(current_user):
+    data = request.data
+    headers = request.headers
+    dataDict = json.loads(data)
+    fyle_token = Fyle_tokens.query.filter_by(user_id = current_user.id).first()
+    tokens = json.loads(fyle_token.tokens)
+    dataDict['refresh_token'] = tokens['refresh_token']
+    res = requests.post(url = 'https://staging.fyle.in/api/oauth/token',headers = headers,data = json.dumps(dataDict))
+    resDict = json.loads(res.text)
+    tokens['access_token'] = resDict['access_token']
+    fyle_token.tokens = json.dumps(tokens)
+    db.session.commit()
+
+    return jsonify({ "message" : "access-token updated successfully" })
+
+@expenses_blueprint.route('/expensesFetchAPI',methods = ['GET'])
+@token_required
+def fetchAPI(current_user):
+    fyle_token = Fyle_tokens.query.filter_by(user_id = current_user.id).first()
+    tokens = json.loads(fyle_token.tokens)
+    access_token = tokens['access_token']
+    res = requests.get(url = 'https://staging.fyle.in/api/transactions',headers = { "X-AUTH-TOKEN" : access_token })
+    new_expense = Expense(user_id = current_user.id,expense_details = res.text,created_at = datetime.datetime.now(),updated_at = datetime.datetime.now())
+    db.session.add(new_expense)
+    db.session.commit()
+    return jsonify({ "expenses" : res.text })
 
 @expenses_blueprint.route('/expenses',methods = ['GET'])
 @token_required
@@ -13,7 +67,10 @@ def get_all_expenses(current_user):
     output = []
 
     for expense in expenses:
-        expense_data = expense.expense_details
+        expense_data = {}
+        expense_data['expense_details'] = expense.expense_details
+        expense_data['created_at'] = expense.created_at
+        expense_data['updated_at'] = expense.updated_at
         output.append(expense_data)
 
     return jsonify({'expenses' : output})
@@ -35,7 +92,7 @@ def get_one_expense(current_user,expense_id):
 def create_expense(current_user):
     data = request.get_json()
 
-    new_expense = Expense(expense_id = data['expense_id'],date = data['date'],details = data['details'],amount = data['amount'],source = data['source'],user_id = current_user.id)
+    new_expense = Expense(created_at = data['created_at'],updated_at = data['updated_at'],expense_details = data['details'],user_id = current_user.id)
     db.session.add(new_expense)
     db.session.commit()
 
