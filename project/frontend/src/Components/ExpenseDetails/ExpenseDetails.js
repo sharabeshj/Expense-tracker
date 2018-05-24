@@ -37,7 +37,7 @@ class ExpenseDetail extends Component {
             "Content-Type" : "application/json",
             "x-access-token" : this.props.token
         } 
-        setInterval(axios.post('/expensesRefresh',JSON.stringify(payLoad)   .then(res => console.log(res)),{ headers : headers }),3600000);
+        setInterval(axios.post('/expensesRefresh',JSON.stringify(payLoad).then(res => console.log(res)),{ headers : headers }),3600000);
     }
     componentWillUnmount(){
         localStorage.removeItem('tempDetails');
