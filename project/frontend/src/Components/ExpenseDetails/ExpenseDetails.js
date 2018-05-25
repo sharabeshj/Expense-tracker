@@ -4,6 +4,12 @@ import { logoutFyle } from '../../store/Actions/ActionCreator';
 import axios from 'axios';
 
 class ExpenseDetail extends Component {
+    constructor(props){
+        super(props);
+        this.state = {
+            expensesDetails : []
+        }
+    }
     componentDidMount(){
         if(this.props.auth === false){
             this.props.history.replace('/')
@@ -20,12 +26,16 @@ class ExpenseDetail extends Component {
             "Content-Type" : "application/json",
             "x-access-token" : this.props.token
         }
+        axios.get('/expenses',{ headers : { "x-access-token" : this.props.token }})
+            .then( res => {
+                console.log(res.data);
+                this.setState({ expensesDetails : res.data.expenses});
+            })
+            .catch(e => console.log(e));
         axios.post('/expensesToken',JSON.stringify(payLoad),{ headers : headers })
             .then(res => this.refreshToken())
-            .catch(e => console.log(e))
-        axios.get('/expenses',{ headers : { "x-access-token" : this.props.token }})
-            .then( res => console.log(res))
-            .catch(e => console.log(e))
+            .catch(e => console.log(e));
+        
     }
     refreshToken = () => {
         const payLoad = {
@@ -54,8 +64,16 @@ class ExpenseDetail extends Component {
             .then(res => console.log(res.data))
     }
     render(){
+        let details = null;
+        if (this.state.expensesDetails!==[]){
+            details = this.state.expensesDetails.map(expense => <li key = {expense.created_at}>{expense.expense_details}{expense.created_at}</li>)
+        }
+        
         return (<div>
             <button onClick = { this.handleSync }>Sync</button>
+            <ul>
+                {details}
+            </ul>
         </div>)
     }
 }

@@ -25,7 +25,7 @@ def TokenGen(current_user):
     tokens = json.loads(fyle_token.tokens)
     tokens['refresh_token'] = resDict['refresh_token']
     tokens['access_token'] = resDict['access_token']
-    fyle_token.token = json.dumps(tokens)
+    fyle_token.tokens = json.dumps(tokens)
     db.session.commit()
 
     return jsonify({ "message" : "Token saved" })
@@ -51,12 +51,17 @@ def RefreshToken(current_user):
 @token_required
 def fetchAPI(current_user):
     fyle_token = Fyle_tokens.query.filter_by(user_id = current_user.id).first()
-    tokens = json.loads(fyle_token.tokens)
+    tokens = json.loads(fyle_token.tokens) 
     access_token = tokens['access_token']
     res = requests.get(url = 'https://staging.fyle.in/api/transactions',headers = { "X-AUTH-TOKEN" : access_token })
-    new_expense = Expense(user_id = current_user.id,expense_details = res.text,created_at = datetime.datetime.now(),updated_at = datetime.datetime.now())
-    db.session.add(new_expense)
-    db.session.commit()
+    resDict = json.loads(res.text)
+    print(resDict)
+    for expense in resDict:
+        old_expense = Expense.query.filter_by(user_id = current_user.id,ext_expense_id = expense['id'])
+        if not old_expense:
+            new_expense = Expense(user_id = current_user.id,expense_details = json.dumps(expense),created_at = expense['created_at'],updated_at = expense['updated_at'],ext_expense_id = expense['id'])
+            db.session.add(new_expense)
+            db.session.commit()
     return jsonify({ "expenses" : res.text })
 
 @expenses_blueprint.route('/expenses',methods = ['GET'])
