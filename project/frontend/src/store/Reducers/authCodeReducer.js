@@ -1,6 +1,6 @@
 import * as ActionTypes from '../Actions/Actions';
 
-const authCodeHandler = (state = { authCode : ''},action) => {
+const authCodeHandler = (state = { authCode : '',state : ''},action) => {
     switch(action.type){
         case ActionTypes.AUTH_CODE:
             return {
@@ -11,6 +11,11 @@ const authCodeHandler = (state = { authCode : ''},action) => {
             return {
                 ...state,
                 authCode : null
+            }
+        case ActionTypes.REFRESH_TOKEN:
+            return {
+                ...state,
+                state : 'refreshing'
             }
         default : 
             return state

@@ -61,3 +61,23 @@ export const logoutFyle = () => {
         type : ActionTypes.LOGOUT_FYLE
     }
 }
+
+const refreshToken = () => {
+    return {
+        type : ActionTypes.REFRESH_TOKEN
+    }
+}
+
+const refreshAction = (data) => {
+    return dispatch => {
+        const headers = {
+            "x-access-token" : data.token
+        } 
+        axios.get('/expensesRefresh',{ headers : headers })
+            .then(res => dispatch(refreshToken()));
+    }
+}
+
+export const refresh = (data) => {
+    return (dispatch,getState) => dispatch(refreshAction(data))
+}

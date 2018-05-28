@@ -1,7 +1,7 @@
 import React,{ Component } from 'react';
 import { connect } from 'react-redux';
-import { logoutFyle } from '../../store/Actions/ActionCreator';
 import axios from 'axios';
+import { refresh } from '../../store/Actions/ActionCreator';
 
 class ExpenseDetail extends Component {
     constructor(props){
@@ -11,7 +11,7 @@ class ExpenseDetail extends Component {
         }
     }
     componentDidMount(){
-        if(this.props.auth === false){
+        if(!!this.props.code === false && this.props.state !== 'refreshing'){
             this.props.history.replace('/')
         }
         
@@ -34,23 +34,15 @@ class ExpenseDetail extends Component {
                     "x-access-token" : this.props.token
                 }
             axios.post('/expensesToken',JSON.stringify(payLoad),{ headers : headers })
-                .then(res => this.refresh = setInterval(this.refreshToken,3600000))
+                .then(res => {
+                    console.log(res.data);
+                    this.props.refreshToken({ token : this.props.token });
+                })
                 .catch(e => console.log(e));
             })    
     }
-    refreshToken = () => {
-        const headers = {
-            "x-access-token" : this.props.token
-        } 
-        axios.get('/expensesRefresh',{ headers : headers })
-            .then(res => console.log(res.data));
-    }
-    componentWillUnmount(){
-        clearInterval(this.refresh);
-        this.props.logoutFyle();
-    }
     componentWillReceiveProps(nextProps) {
-        if (nextProps.auth === false) {
+        if (!!nextProps.code === false && nextProps.state !== 'refreshing') {
             this.props.history.replace('/')
         }
     }
@@ -69,7 +61,7 @@ class ExpenseDetail extends Component {
     render(){
         let details = null;
         if (this.state.expensesDetails!==[]){
-            details = this.state.expensesDetails.map(expense => <li key = {expense.created_at}>{expense.expense_details}{expense.created_at}</li>)
+            details = this.state.expensesDetails.map(expense => <li key = {JSON.parse(expense.expense_details).id}>{expense.expense_details}{expense.created_at}</li>)
         }
         
         return (<div>
@@ -83,16 +75,15 @@ class ExpenseDetail extends Component {
 
 const mapStateToProps = state => {
     return {
-        auth : !!state.auth.authCode,
+        state  : state.auth.state,
         code : state.auth.authCode,
         token : state.log.token
     }
 }
 
 const mapDispatchToProps = dispatch => {
-    return { 
-        logoutFyle : () => dispatch(logoutFyle())
+    return {
+        refreshToken : (data) => dispatch(refresh(data))
     }
 }
-
 export default connect(mapStateToProps,mapDispatchToProps)(ExpenseDetail);

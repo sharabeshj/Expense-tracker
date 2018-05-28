@@ -102,7 +102,7 @@ class NavBar extends Component{
                                         open = {open}
                                         onClose= {this.handleClose}>
                                         <MenuItem onClick = {this.handleClose}>Profile</MenuItem>
-                                        <Link className = {classes.link} to='/expenses'><MenuItem >My Expenses</MenuItem></Link>
+                                        <Link className = {classes.link} to='/expenses/expenseDetails'><MenuItem >My Expenses</MenuItem></Link>
                                     </Menu>
                                 </div>
                             )}

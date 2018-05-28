@@ -57,7 +57,7 @@ def fetchAPI(current_user):
     res = requests.get(url = 'https://staging.fyle.in/api/transactions',headers = { "X-AUTH-TOKEN" : access_token })
     resDict = json.loads(res.text)
     for expense in resDict:
-        old_expense = Expense.query.filter_by(user_id = current_user.id,ext_expense_id = expense['id'])
+        old_expense = Expense.query.filter_by(user_id = current_user.id,ext_expense_id = expense['id']).first()
         if not old_expense:
             new_expense = Expense(user_id = current_user.id,expense_details = json.dumps(expense),created_at = expense['created_at'],updated_at = expense['updated_at'],ext_expense_id = expense['id'])
             db.session.add(new_expense)
