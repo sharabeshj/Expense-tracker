@@ -6,7 +6,6 @@ import Switch from '@material-ui/core/Switch';
 import { Switch as Sw,Route } from 'react-router-dom';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import PropTypes from 'prop-types';
-import LoginFyle from '../Components/ExpenseDetails/LoginFyle';
 import Redirect from '../Components/ExpenseDetails/Redirect';
 import ExpenseDetail from '../Components/ExpenseDetails/ExpenseDetails';
 
@@ -45,8 +44,7 @@ class Expense extends Component {
                 />
                 <div>
                     <Sw>    
-                    <Route exact path='/expenses/loginFyle' component={LoginFyle} />
-                    <Route exact path={'/expenses/redirect/:clientId'} component={Redirect} />
+                    <Route exact path={'/expenses/redirect'} component={Redirect} />
                     <Route exact path = '/expenses/expenseDetails' component = { ExpenseDetail } />
                     <Route exact path='/expenses' component={Index} />
                     </Sw>

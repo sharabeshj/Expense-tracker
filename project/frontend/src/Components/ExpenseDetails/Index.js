@@ -42,7 +42,7 @@ const index = (props) => {
     const { classes } = props;
     return (
         <div className = { classes.container }>
-            <Button component = { Link } to = '/expenses/loginFyle' variant = "raised" color = "primary" className = {classNames(classes.margin,classes.buttonFyle)}>
+            <Button component = { Link } to = '/expenses/redirect' variant = "raised" color = "primary" className = {classNames(classes.margin,classes.buttonFyle)}>
             Continue with Fyle
             </Button>
             <Button variant = "raised" color = "primary" className = { classNames(classes.margin,classes.buttonDropBox)}>

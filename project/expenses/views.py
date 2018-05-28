@@ -12,8 +12,8 @@ expenses_blueprint = Blueprint('expenses',__name__)
 @expenses_blueprint.route('/expensesToken',methods = ['POST'])
 @token_required
 def TokenGen(current_user):
-    data = request.data
     headers = request.headers
+    data = request.data
     res = requests.post(url='https://staging.fyle.in/api/oauth/token',headers = headers,data = data)
     fyle_token = Fyle_tokens.query.filter_by(user_id = current_user.id).first()
     if not fyle_token:
@@ -30,16 +30,17 @@ def TokenGen(current_user):
 
     return jsonify({ "message" : "Token saved" })
 
-@expenses_blueprint.route('/expensesRefresh',methods = ['POST'])
+@expenses_blueprint.route('/expensesRefresh',methods = ['GET'])
 @token_required
 def RefreshToken(current_user):
-    data = request.data
     headers = request.headers
-    dataDict = json.loads(data)
+    dataDict = { 'grant_type' : 'refresh_token'}
     fyle_token = Fyle_tokens.query.filter_by(user_id = current_user.id).first()
     tokens = json.loads(fyle_token.tokens)
     dataDict['refresh_token'] = tokens['refresh_token']
-    res = requests.post(url = 'https://staging.fyle.in/api/oauth/token',headers = headers,data = json.dumps(dataDict))
+    dataDict['client_id'] = 'tpaWTytgNOxUO'
+    dataDict['client_secret'] = 'sharabesh'
+    res = requests.post(url = 'https://staging.fyle.in/api/oauth/token',headers = headers,json = dataDict)
     resDict = json.loads(res.text)
     tokens['access_token'] = resDict['access_token']
     fyle_token.tokens = json.dumps(tokens)
@@ -55,7 +56,6 @@ def fetchAPI(current_user):
     access_token = tokens['access_token']
     res = requests.get(url = 'https://staging.fyle.in/api/transactions',headers = { "X-AUTH-TOKEN" : access_token })
     resDict = json.loads(res.text)
-    print(resDict)
     for expense in resDict:
         old_expense = Expense.query.filter_by(user_id = current_user.id,ext_expense_id = expense['id'])
         if not old_expense:

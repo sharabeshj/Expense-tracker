@@ -1,7 +1,33 @@
+import React,{ Component } from 'react';
+import axios from 'axios';
+import {connect} from 'react-redux';
 
-
-const redirect = (props) => {
-    window.location=  'https://staging.fyle.in/#/auth/oauth?client_id=' + props.match.params.clientId + '&redirect_uri=http://127.0.0.1:3000/expenses/';
+class Redirect extends Component{
+    constructor(props){
+        super(props);
+        this.state = {
+            data : ''
+        }
+    }
+    componentDidMount(){
+        axios.get('/authorizationCredentials',{ headers : { 'x-access-token' : this.props.token }})
+            .then(res => {
+                console.log(res)
+                this.setState({ data : res.data.client_id })
+            })
+    }
+    render(){
+        if(!!this.state.data === true){
+            window.location = 'https://staging.fyle.in/#/auth/oauth?client_id=' + this.state.data + '&redirect_uri=http://127.0.0.1:3001/expenses/';
+        }
+        return <p>Redirecting</p>
+    }
 }
 
-export default redirect;
+const mapStateToProps = state => {
+    return {
+        token : state.log.token
+    }
+}
+
+export default connect(mapStateToProps,null)(Redirect);

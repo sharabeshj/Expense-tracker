@@ -2,7 +2,7 @@ from flask import request,make_response,jsonify,render_template
 from werkzeug.security import check_password_hash
 import jwt
 import datetime
-from . import app
+from . import app,token_required
 from project.models import User
 
 @app.route('/obtain-auth')
@@ -24,3 +24,7 @@ def login():
 
     return make_response('Could not verify',401,{'WWW-Authenticate' : 'Basic realm="Login required"'})
 
+@app.route('/authorizationCredentials')
+@token_required
+def authorizationCredentials(current_user):
+    return jsonify({ "client_id" : 'tpaWTytgNOxUO', 'client_secret' : 'sharabesh'})
