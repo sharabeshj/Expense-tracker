@@ -1,33 +1,41 @@
 from flask import Blueprint,request,jsonify,make_response,session,redirect
-from project.models import Expense,Fyle_tokens
-from project import db,token_required
+from project.models import Expense,Fyle_tokens,User
+from project import db,token_required,app
 import requests
 import json
 from werkzeug.wrappers import Response
 import datetime
-
+import jwt
 
 expenses_blueprint = Blueprint('expenses',__name__)
 
 @expenses_blueprint.route('/expensesToken',methods = ['POST'])
 def TokenGen():
     dataDict = request.get_json()
+    print(dataDict)
     dataDict['client_id'] = 'tpaWTytgNOxUO'
     dataDict['client_secret'] = 'sharabesh'
     dataDict['grant_type'] = 'authorization_code'
-    print(dataDict)
     resToken = requests.post(url='https://staging.fyle.in/api/oauth/token',headers = {'Content-Type' : 'Application/json'},json = dataDict)
     resTokenDict = json.loads(resToken.text)
     
     if resToken.status_code == 200:
         resCred = requests.get('https://staging.fyle.in/api/eous/current',headers = { 'x-auth-token' : resTokenDict['access_token']})
-        print(resCred.text)
         if resCred.status_code == 200:
             resCredDict = json.loads(resCred.text)
-            session['username'] = resCredDict['us_email']
-            session['user_id'] = resCredDict['us_id']
-            session['res_text'] = resTokenDict
-            return redirect('/users')
+            old_user = User.query.filter_by(public_id = resCredDict['us_id']).first()
+            if not old_user:
+                session['username'] = resCredDict['us_email']
+                session['user_id'] = resCredDict['us_id']
+                session['res_text'] = resTokenDict
+                return redirect('/users')
+            token = jwt.encode({'public_id' : old_user.public_id,'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes = 30)},app.config['SECRET_KEY'])
+            fyle_token = Fyle_tokens.query.filter_by(user_id = old_user.id).first()
+            tokens = json.loads(fyle_token.tokens)
+            tokens['access_token'] = resTokenDict['access_token']
+            fyle_token.tokens = json.dumps(tokens)
+            db.session.commit()
+            return jsonify({ 'token' : token.decode('UTF-8') })
     return  jsonify({ 'message' : 'error occured'})
    
 @expenses_blueprint.route('/expensesRefresh',methods = ['GET'])
@@ -59,7 +67,7 @@ def fetchAPI(current_user):
     for expense in resDict:
         old_expense = Expense.query.filter_by(ext_expense_id = expense['id']).first()
         if not old_expense:
-            new_expense = Expense(expense_details = json.dumps(expense),created_at = expense['created_at'],updated_at = expense['updated_at'],ext_expense_id = expense['id'])
+            new_expense = Expense(user_id = current_user.id,expense_details = json.dumps(expense),created_at = expense['created_at'],updated_at = expense['updated_at'],ext_expense_id = expense['id'])
             db.session.add(new_expense)
             db.session.commit()
     return jsonify({ "expenses" : res.text })

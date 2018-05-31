@@ -11,9 +11,6 @@ users_blueprint = Blueprint('users',__name__)
 
 @users_blueprint.route('/users')
 def create_user():
-    if not session['username']:
-        return make_response('No username provided',401)
-
     new_user = User(public_id = session['user_id'],email = session['username'],admin = False,created_at = datetime.datetime.now(),updated_at = datetime.datetime.now())
     token = jwt.encode({'public_id' : new_user.public_id,'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes = 30)},app.config['SECRET_KEY'])
     db.session.add(new_user)

@@ -22,12 +22,13 @@ class ExpenseDetail extends Component {
             })
             .catch(e => console.log(e));
                 
-    }
+        }
     handleSync = (e) => {
         axios.get('/expensesFetchAPI',{ headers : { "x-access-token" : this.props.token}})
             .then(res => {
                 axios.get('/expenses',{ headers : { "x-access-token" : this.props.token }})
                 .then( res => {
+                    console.log(res.data.expenses)
                     this.setState({ expensesDetails : res.data.expenses});
                 })
                 .catch(e => console.log(e));
@@ -35,7 +36,7 @@ class ExpenseDetail extends Component {
     }
     render(){
         return (
-            <ExpenseTable expensesDetails = {this.state.expensesDetails}/>
+            <ExpenseTable expensesDetails = {this.state.expensesDetails} handleSync = {this.handleSync}/>
         )
     }
 }

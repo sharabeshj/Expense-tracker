@@ -7,6 +7,8 @@ import classNames from 'classnames';
 import pink from '@material-ui/core/colors/pink';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
+import axios from 'axios';
+import { logout } from '../../store/Actions/ActionCreator';
  
 const styles = theme => ({
     container : {
@@ -33,9 +35,20 @@ const styles = theme => ({
 });
 
 class Home extends Component {
-    componentWillMount(){
+    componentDidMount(){
         if(this.props.authenticated === true){
-            this.props.history.replace('/expenses/expensesDetails')
+            axios.post('/checkToken',{ token : this.props.token })
+                .then(res => {
+                    console.log(res);
+                    if(res.status === 200){
+                        this.props.history.replace('/expenses/expenseDetails')
+                    }
+                    else {
+                        this.props.logoutHandler();
+                        this.props.history.replace('/')
+                    }
+                })
+            
         }
     }
     render(){
@@ -57,8 +70,15 @@ Home.propTypes = {
 
 const mapStateToProps = state => {
     return {
-        authenticated : state.log.authenticated
+        authenticated : state.log.authenticated,
+        token : state.log.token
     }
 }
 
-export default connect(mapStateToProps,null)(withStyles(styles)(Home));
+const mapDispatchToProps = dispatch => {
+    return {
+        logoutHandler : () => dispatch(logout)
+    }
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(withStyles(styles)(Home));

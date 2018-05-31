@@ -117,7 +117,6 @@ const toolbarStyles = theme => ({
 
 let TableToolbar = props => {
     const { numSelected,classes } = props;
-
     return (
         <Toolbar
             className = { classNames(classes.root,{
@@ -137,7 +136,9 @@ let TableToolbar = props => {
                     )
                 }
             </div>
+            
             <div className = { classes.spacer }/>
+            <button onClick = {props.handleSync}>Sync</button>
             <div className = { classes.actions }>
                 { numSelected > 0 ? (
                     <Tooltip title = "Delete">
@@ -263,7 +264,7 @@ class ExpenseTable extends Component{
 
         return (
             <Paper className = { classes.root }>
-                <TableToolbar numSelected = { selected.length }/>
+                <TableToolbar numSelected = { selected.length } handleSync = {this.props.handleSync}/>
                 <div className = { classes.tableWrapper }>
                 <Table className = { classes.table } aria-labelledby = "tableTitle">
                     <Tablehead 
@@ -334,7 +335,8 @@ class ExpenseTable extends Component{
 
 ExpenseTable.propTypes = {
     classes : PropTypes.object.isRequired,
-    expensesDetails : PropTypes.array.isRequired
+    expensesDetails : PropTypes.array
 }
+
 
 export default withStyles(styles)(ExpenseTable);
