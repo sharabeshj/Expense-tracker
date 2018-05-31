@@ -1,64 +1,27 @@
-from flask import Blueprint,request,jsonify,make_response
-from project  import db,token_required
-from project.models import User
+from flask import Blueprint,request,jsonify,make_response,session
+from project  import db,token_required,app
+from project.models import User,Fyle_tokens
 from werkzeug.security import generate_password_hash
-import uuid
 import datetime
+import jwt
 
 
 users_blueprint = Blueprint('users',__name__)
 
-@users_blueprint.route('/users',methods = ['GET'])
-@token_required
-def get_all_users(current_user):
-    if not current_user.admin:
-        return jsonify({'message' : 'Cannot perform that action'})
-
-    users = User.query.all()
-    output = []
-
-    for user in users:
-        user_data = {}
-        user_data['public_id'] = user.public_id
-        user_data['email'] = user.email
-        user_data['admin'] = user.admin
-        output.append(user_data)
-    
-    return jsonify({'users' : output})
-
-@users_blueprint.route('/user/<public_id>',methods = ['GET'])
-@token_required
-def get_one_user(current_user,public_id):
-    if not current_user.admin:
-        return jsonify({'message' : 'Cannot perform that action'})
-        
-    user = User.query.filter_by(public_id = public_id).first()
-
-    if not user:
-        return jsonify({'message' : 'user not found!'})
-
-    user_data = {}
-    user_data['public_id'] = user.public_id
-    user_data['email'] = user.email
-    user_data['admin'] = user.admin
-
-    return jsonify({'user' : user_data})
-
-@users_blueprint.route('/users',methods = ['POST'])
-@token_required
+@users_blueprint.route('/users')
 def create_user(current_user):
-    if not current_user.admin:
-        return jsonify({'message' : 'Cannot perform that action'})
+    if not session['username']:
+        return make_response('No username provided',401)
 
-    data = request.get_json(force = True)
-
-    hashed_password = generate_password_hash(data['password'],method = 'sha256')
-
-    new_user = User(public_id = str(uuid.uuid4()),email = data['email'],password = hashed_password,admin = False,created_at = datetime.datetime.now())
+    new_user = User(public_id = session['user_id'],email = session['username'],admin = False,created_at = datetime.datetime.now(),updated_at = datetime.datetime.now())
+    token = jwt.encode({'public_id' : new_user.public_id,'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes = 30)},app.config['SECRET_KEY'])
     db.session.add(new_user)
     db.session.commit()
+    newFyleToken = Fyle_tokens(created_at = datetime.datetime.now(),updated_at = datetime.datetime.now(),user_id = session['user_id'],tokens = json.dumps(session['res_text']))
+    db.session.add(newFyleToken)
+    db.session.commit()
+    return jsonify({ 'token' : token.decode('UTF-8')})
 
-    return jsonify({'message' : 'new user created'})
 
 @users_blueprint.route('/user/<public_id>',methods = ['PUT'])
 @token_required

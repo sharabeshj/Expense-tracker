@@ -1,13 +1,13 @@
 import React, { Component } from "react";
 import { connect } from 'react-redux';
 import { logout,authCodeHandler,logoutFyle } from '../store/Actions/ActionCreator';
-import Index from '../Components/ExpenseDetails/Index';
 import Switch from '@material-ui/core/Switch';
 import { Switch as Sw,Route } from 'react-router-dom';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import PropTypes from 'prop-types';
-import Redirect from '../Components/ExpenseDetails/Redirect';
-import ExpenseDetail from '../Components/ExpenseDetails/ExpenseDetails';
+import Redirect from './ExpenseDetails/Redirect';
+import ExpenseDetail from './ExpenseDetails/ExpenseDetails';
+import Login from './ExpenseDetails/Login';
 
 const queryString = require('query-string');
 
@@ -20,17 +20,7 @@ class Expense extends Component {
         if(!!this.props.location.search){
             const query = queryString.parse(this.props.location.search);
             this.props.authCodeHandler(query.code);
-            this.props.history.replace('/expenses/expenseDetails');
-        }
-    }
-    componentWillMount() {
-        if (this.props.authenticated === false) {
-            this.props.history.replace('/login')
-        }
-    }
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.authenticated === false) {
-            this.props.history.replace('/')
+            this.props.history.replace('/expenses/login');
         }
     }
     render() {
@@ -43,10 +33,10 @@ class Expense extends Component {
                     label={this.props.authenticated ? 'Logout' : 'Login'}
                 />
                 <div>
-                    <Sw>    
-                    <Route exact path={'/expenses/redirect'} component={Redirect} />
-                    <Route exact path = '/expenses/expenseDetails' component = { ExpenseDetail } />
-                    <Route exact path='/expenses' component={Index} />
+                    <Sw>
+                        <Route exact path= '/expenses/login' component = { Login } />
+                        <Route exact path='/expenses/redirect' component={Redirect} />
+                        <Route exact path = '/expenses/expenseDetails' component = { ExpenseDetail } />
                     </Sw>
                 </div>
             </div>

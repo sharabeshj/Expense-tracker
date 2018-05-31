@@ -1,4 +1,4 @@
-from flask import Blueprint,request,jsonify,make_response
+from flask import Blueprint,request,jsonify,make_response,session,redirect
 from project.models import Expense,Fyle_tokens
 from project import db,token_required
 import requests
@@ -10,26 +10,26 @@ import datetime
 expenses_blueprint = Blueprint('expenses',__name__)
 
 @expenses_blueprint.route('/expensesToken',methods = ['POST'])
-@token_required
-def TokenGen(current_user):
-    headers = request.headers
-    data = request.data
-    res = requests.post(url='https://staging.fyle.in/api/oauth/token',headers = headers,data = data)
-    fyle_token = Fyle_tokens.query.filter_by(user_id = current_user.id).first()
-    if not fyle_token:
-        new_fyle_token =  Fyle_tokens(user_id = current_user.id,created_at = datetime.datetime.now(),updated_at = datetime.datetime.now(),tokens = res.text)
-        db.session.add(new_fyle_token)
-        db.session.commit()
-        return jsonify({ "message" : "Token saved" })
-    resDict = json.loads(res.text)
-    tokens = json.loads(fyle_token.tokens)
-    tokens['refresh_token'] = resDict['refresh_token']
-    tokens['access_token'] = resDict['access_token']
-    fyle_token.tokens = json.dumps(tokens)
-    db.session.commit()
-
-    return jsonify({ "message" : "Token saved" })
-
+def TokenGen():
+    dataDict = request.get_json()
+    dataDict['client_id'] = 'tpaWTytgNOxUO'
+    dataDict['client_secret'] = 'sharabesh'
+    dataDict['grant_type'] = 'authorization_code'
+    print(dataDict)
+    resToken = requests.post(url='https://staging.fyle.in/api/oauth/token',headers = {'Content-Type' : 'Application/json'},json = dataDict)
+    resTokenDict = json.loads(resToken.text)
+    
+    if resToken.status_code == 200:
+        resCred = requests.get('https://staging.fyle.in/api/users/current',headers = { 'x-auth-token' : resTokenDict['access_token']})
+        print(resCred.text)
+        if resCred.status_code == 200:
+            resCredDict = resCred.text.get_json()
+            session['username'] = resCredDict['email']
+            session['user_id'] = resCredDict['id']
+            session['res_text'] = resTokenDict
+            return redirect('/users')
+    return  jsonify({ 'message' : 'error occured'})
+   
 @expenses_blueprint.route('/expensesRefresh',methods = ['GET'])
 @token_required
 def RefreshToken(current_user):

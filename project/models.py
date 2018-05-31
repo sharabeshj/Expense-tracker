@@ -6,9 +6,9 @@ class User(db.Model):
     __tablename__ = "users"
     
     id = db.Column(db.Integer,primary_key = True)
-    public_id = db.Column(db.String(50),unique = True)
+    public_id = db.Column(db.String,unique = True)
     email = db.Column(db.String,unique = True, nullable = False)
-    password = db.Column(db.String,nullable = False)
+    password = db.Column(db.String,nullable = True)
     admin = db.Column(db.Boolean)
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
@@ -38,9 +38,3 @@ class Fyle_tokens(db.Model):
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
     tokens = db.Column(JSON)
-
-    def to_token(self):
-        return dict(
-            refresh_token=self.refresh_token,
-            access_token = self.access_tokens
-        )

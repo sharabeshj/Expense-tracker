@@ -1,4 +1,4 @@
-import React from "react";
+import React,{ Component } from "react";
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import PropTypes from "prop-types";
@@ -6,6 +6,7 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import pink from '@material-ui/core/colors/pink';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
  
 const styles = theme => ({
     container : {
@@ -31,20 +32,33 @@ const styles = theme => ({
     },
 });
 
-const home = (props) => {
-    const { classes } = props;
-    return (
-        <div className = {classes.container}>
-            <Typography className = {classes.root} variant = "display3" gutterBottom>Welcome to Fyle expense</Typography>
-            <Button component = {Link} to = '/login' variant = "raised" color = "primary" className = {classNames(classes.margin,classes.buttonFyle)}>
-            Login
-            </Button>
-        </div>
-    )
-}
+class Home extends Component {
+    componentWillMount(){
+        if(this.props.authenticated === true){
+            this.props.history.replace('/expenses/expensesDetails')
+        }
+    }
+    render(){
+        const { classes } = this.props;
+        return (
+            <div className = {classes.container}>
+                <Typography className = {classes.root} variant = "display3" gutterBottom>Welcome to Fyle expense</Typography>
+                <Button component = { Link } to = '/expenses/redirect' variant = "raised" color = "primary" className = {classNames(classes.margin,classes.buttonFyle)}>
+                Continue with Fyle
+                </Button>
+            </div>
+        )
+    }
+} 
 
-home.propTypes = {
+Home.propTypes = {
     classes : PropTypes.object.isRequired,
 }
 
-export default withStyles(styles)(home);
+const mapStateToProps = state => {
+    return {
+        authenticated : state.log.authenticated
+    }
+}
+
+export default connect(mapStateToProps,null)(withStyles(styles)(Home));

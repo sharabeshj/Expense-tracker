@@ -12,13 +12,16 @@ class Redirect extends Component{
     componentDidMount(){
         axios.get('/authorizationCredentials',{ headers : { 'x-access-token' : this.props.token }})
             .then(res => {
-                console.log(res)
+                console.log(res);
                 this.setState({ data : res.data.client_id })
             })
     }
+    componentWillUnmount(){
+        console.log('hii')
+    }
     render(){
-        if(!!this.state.data === true){
-            window.location = 'https://staging.fyle.in/#/auth/oauth?client_id=' + this.state.data + '&redirect_uri=http://127.0.0.1:3001/expenses/';
+        if(this.state.data !== ''){
+            window.location = 'https://staging.fyle.in/#/auth/oauth?client_id=' + this.state.data + '&redirect_uri=http://127.0.0.1:3000/expenses/';
         }
         return <p>Redirecting</p>
     }

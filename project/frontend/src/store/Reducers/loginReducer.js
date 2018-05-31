@@ -6,7 +6,8 @@ const loginHandler = (state = { authenticated :false },action) => {
             return {
                 ...state,
                 authenticated : true,
-                token : action.token
+                token : action.token,
+                lastLogin : action.login_time
             }
         case ActionTypes.ERROR :
             return {
