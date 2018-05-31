@@ -20,12 +20,12 @@ def TokenGen():
     resTokenDict = json.loads(resToken.text)
     
     if resToken.status_code == 200:
-        resCred = requests.get('https://staging.fyle.in/api/users/current',headers = { 'x-auth-token' : resTokenDict['access_token']})
+        resCred = requests.get('https://staging.fyle.in/api/eous/current',headers = { 'x-auth-token' : resTokenDict['access_token']})
         print(resCred.text)
         if resCred.status_code == 200:
-            resCredDict = resCred.text.get_json()
-            session['username'] = resCredDict['email']
-            session['user_id'] = resCredDict['id']
+            resCredDict = json.loads(resCred.text)
+            session['username'] = resCredDict['us_email']
+            session['user_id'] = resCredDict['us_id']
             session['res_text'] = resTokenDict
             return redirect('/users')
     return  jsonify({ 'message' : 'error occured'})
@@ -57,9 +57,9 @@ def fetchAPI(current_user):
     res = requests.get(url = 'https://staging.fyle.in/api/transactions',headers = { "X-AUTH-TOKEN" : access_token })
     resDict = json.loads(res.text)
     for expense in resDict:
-        old_expense = Expense.query.filter_by(user_id = current_user.id,ext_expense_id = expense['id']).first()
+        old_expense = Expense.query.filter_by(ext_expense_id = expense['id']).first()
         if not old_expense:
-            new_expense = Expense(user_id = current_user.id,expense_details = json.dumps(expense),created_at = expense['created_at'],updated_at = expense['updated_at'],ext_expense_id = expense['id'])
+            new_expense = Expense(expense_details = json.dumps(expense),created_at = expense['created_at'],updated_at = expense['updated_at'],ext_expense_id = expense['id'])
             db.session.add(new_expense)
             db.session.commit()
     return jsonify({ "expenses" : res.text })

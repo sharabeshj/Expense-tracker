@@ -4,12 +4,13 @@ from project.models import User,Fyle_tokens
 from werkzeug.security import generate_password_hash
 import datetime
 import jwt
+import json
 
 
 users_blueprint = Blueprint('users',__name__)
 
 @users_blueprint.route('/users')
-def create_user(current_user):
+def create_user():
     if not session['username']:
         return make_response('No username provided',401)
 
@@ -17,7 +18,8 @@ def create_user(current_user):
     token = jwt.encode({'public_id' : new_user.public_id,'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes = 30)},app.config['SECRET_KEY'])
     db.session.add(new_user)
     db.session.commit()
-    newFyleToken = Fyle_tokens(created_at = datetime.datetime.now(),updated_at = datetime.datetime.now(),user_id = session['user_id'],tokens = json.dumps(session['res_text']))
+    current_user = User.query.filter_by(public_id = session['user_id']).first()
+    newFyleToken = Fyle_tokens(created_at = datetime.datetime.now(),updated_at = datetime.datetime.now(),user_id = current_user.id,username = session['username'],tokens = json.dumps(session['res_text']))
     db.session.add(newFyleToken)
     db.session.commit()
     return jsonify({ 'token' : token.decode('UTF-8')})

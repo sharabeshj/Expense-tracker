@@ -7,7 +7,6 @@ class Login extends Component{
     componentDidMount(){
         axios.post('/expensesToken',JSON.stringify({ code : this.props.authCode }),{ headers : { 'Content-Type' : 'application/json' } })
                 .then(res => {
-                    this.props.refreshToken({ token : this.props.token });
                     this.props.loginHandler(res.data['token']);
                 })
                 .then(() => this.props.history.replace('/expenses/expenseDetails'))

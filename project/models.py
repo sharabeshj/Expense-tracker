@@ -13,6 +13,7 @@ class User(db.Model):
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
     expense = db.relationship('Expense',backref = 'user',lazy = True)
+    fyleToken = db.relationship('Fyle_tokens',backref = 'user',lazy = True)
 
     def __repr__(self):
         return 'User {}'.format(self.public_id)
@@ -34,7 +35,8 @@ class Expense(db.Model):
 class Fyle_tokens(db.Model):
     __tablename__ = "fyle_tokens"
 
-    user_id = db.Column(db.Integer, nullable=False,primary_key = True)
+    user_id = db.Column(db.Integer,db.ForeignKey('users.id'),primary_key = True,nullable = False)
+    username = db.Column(db.String,primary_key = True)
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
     tokens = db.Column(JSON)
