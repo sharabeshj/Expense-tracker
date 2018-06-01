@@ -8,7 +8,7 @@ import pink from '@material-ui/core/colors/pink';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import axios from 'axios';
-import { logout } from '../../store/Actions/ActionCreator';
+import { logout, loggedIn } from '../../store/Actions/ActionCreator';
  
 const styles = theme => ({
     container : {
@@ -39,14 +39,11 @@ class Home extends Component {
         if(this.props.authenticated === true){
             axios.post('/checkToken',{ token : this.props.token })
                 .then(res => {
-                    console.log(res);
-                    if(res.status === 200){
-                        this.props.history.replace('/expenses/expenseDetails')
-                    }
-                    else {
-                        this.props.logoutHandler();
-                        this.props.history.replace('/')
-                    }
+                    this.props.history.replace('/expenses/expenseDetails');
+                })
+                .catch( e => {
+                    axios.post('/refreshToken',JSON.stringify({ user_id : this.props.user_id }))
+                        .then( res => this.loginHandler({ token : res.data.token, user_id : res.data.user_id }))
                 })
             
         }
@@ -71,13 +68,15 @@ Home.propTypes = {
 const mapStateToProps = state => {
     return {
         authenticated : state.log.authenticated,
-        token : state.log.token
+        token : state.log.token,
+        user_id : state.log.user_id
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
-        logoutHandler : () => dispatch(logout)
+        logoutHandler : () => dispatch(logout),
+        loginHandler : (data) => dispatch(loggedIn(data))
     }
 }
 

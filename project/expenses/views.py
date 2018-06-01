@@ -12,7 +12,6 @@ expenses_blueprint = Blueprint('expenses',__name__)
 @expenses_blueprint.route('/expensesToken',methods = ['POST'])
 def TokenGen():
     dataDict = request.get_json()
-    print(dataDict)
     dataDict['client_id'] = 'tpaWTytgNOxUO'
     dataDict['client_secret'] = 'sharabesh'
     dataDict['grant_type'] = 'authorization_code'
@@ -29,32 +28,15 @@ def TokenGen():
                 session['user_id'] = resCredDict['us_id']
                 session['res_text'] = resTokenDict
                 return redirect('/users')
-            token = jwt.encode({'public_id' : old_user.public_id,'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes = 30)},app.config['SECRET_KEY'])
+            token = jwt.encode({'public_id' : old_user.public_id,'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes = 60)},app.config['SECRET_KEY'])
             fyle_token = Fyle_tokens.query.filter_by(user_id = old_user.id).first()
             tokens = json.loads(fyle_token.tokens)
             tokens['access_token'] = resTokenDict['access_token']
             fyle_token.tokens = json.dumps(tokens)
             db.session.commit()
-            return jsonify({ 'token' : token.decode('UTF-8') })
+            return jsonify({ 'token' : token.decode('UTF-8'),'user_id' : old_user.public_id })
     return  jsonify({ 'message' : 'error occured'})
    
-@expenses_blueprint.route('/expensesRefresh',methods = ['GET'])
-@token_required
-def RefreshToken(current_user):
-    headers = request.headers
-    dataDict = { 'grant_type' : 'refresh_token'}
-    fyle_token = Fyle_tokens.query.filter_by(user_id = current_user.id).first()
-    tokens = json.loads(fyle_token.tokens)
-    dataDict['refresh_token'] = tokens['refresh_token']
-    dataDict['client_id'] = 'tpaWTytgNOxUO'
-    dataDict['client_secret'] = 'sharabesh'
-    res = requests.post(url = 'https://staging.fyle.in/api/oauth/token',headers = headers,json = dataDict)
-    resDict = json.loads(res.text)
-    tokens['access_token'] = resDict['access_token']
-    fyle_token.tokens = json.dumps(tokens)
-    db.session.commit()
-
-    return jsonify({ "message" : "access-token updated successfully" })
 
 @expenses_blueprint.route('/expensesFetchAPI',methods = ['GET'])
 @token_required

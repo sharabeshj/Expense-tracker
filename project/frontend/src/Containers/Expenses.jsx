@@ -23,8 +23,8 @@ class Expense extends Component {
             this.props.history.replace('/expenses/login');
         }
     }
-    componentWillReceiveProps(){
-        if(this.props.authenticated === false){
+    componentWillReceiveProps(nextProps){
+        if(nextProps.authenticated === false){
             this.props.history.replace('/')
         }
     }

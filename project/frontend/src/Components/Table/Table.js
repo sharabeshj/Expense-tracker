@@ -168,7 +168,8 @@ TableToolbar = withStyles(toolbarStyles)(TableToolbar);
 const styles = theme => ({
     root : {
         width : '100%',
-        marginTop : theme.spacing.unit * 3,
+        position : 'absolute',
+        marginTop : theme.spacing.unit * 3
     },
     table : {
         minWidth : 1020,
@@ -187,17 +188,17 @@ class ExpenseTable extends Component{
             selected : [],
             data : [],
             page : 0,
-            rowsPerPage : 10,
+            rowsPerPage : 5,
         };
     }
 
-    componentWillReceiveProps(){
+    componentWillReceiveProps(nextProps){
         let newData = [];
-        console.log(this.props.expensesDetails);
-        newData = this.props.expensesDetails.map(expense => {
+        console.log(nextProps.expensesDetails);
+        newData = nextProps.expensesDetails.map(expense => {
             const data = JSON.parse(expense.expense_details);
             expense = createData(data.created_at,data.creator_id,data.vendor,data.category,data.currency+' '+data.amount)
-            return newData.concat(expense)
+            return expense
         });
         console.log(newData);
         this.setState({ data : newData });

@@ -19,7 +19,7 @@ def create_user():
     newFyleToken = Fyle_tokens(created_at = datetime.datetime.now(),updated_at = datetime.datetime.now(),user_id = current_user.id,username = session['username'],tokens = json.dumps(session['res_text']))
     db.session.add(newFyleToken)
     db.session.commit()
-    return jsonify({ 'token' : token.decode('UTF-8')})
+    return jsonify({ 'token' : token.decode('UTF-8'),'user_id' : current_user.public_id })
 
 
 @users_blueprint.route('/user/<public_id>',methods = ['PUT'])

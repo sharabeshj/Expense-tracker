@@ -1,7 +1,7 @@
 import React,{ Component } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
-import { refresh } from '../../store/Actions/ActionCreator';
+import { logout } from '../../store/Actions/ActionCreator';
 import ExpenseTable from '../../Components/Table/Table';
 
 class ExpenseDetail extends Component {
@@ -12,23 +12,24 @@ class ExpenseDetail extends Component {
         }
     }
     componentDidMount(){
-        if(this.props.authenticated !== true ){
-            this.props.history.replace('/')
-        }
+            axios.post('/checkToken',{ token : this.props.token })
+                .catch(e => {
+                    this.props.logoutHandler();
+                    this.props.history.replace('/')
+                })
+                .then(() => {
+                    axios.get('/expenses',{ headers : { "x-access-token" : this.props.token }})
+                        .then( res => {
+                            this.setState({ expensesDetails : res.data.expenses});
+                        })
+                })
         
-        axios.get('/expenses',{ headers : { "x-access-token" : this.props.token }})
-            .then( res => {
-                this.setState({ expensesDetails : res.data.expenses});
-            })
-            .catch(e => console.log(e));
-                
         }
     handleSync = (e) => {
         axios.get('/expensesFetchAPI',{ headers : { "x-access-token" : this.props.token}})
             .then(res => {
                 axios.get('/expenses',{ headers : { "x-access-token" : this.props.token }})
                 .then( res => {
-                    console.log(res.data.expenses)
                     this.setState({ expensesDetails : res.data.expenses});
                 })
                 .catch(e => console.log(e));
@@ -44,13 +45,12 @@ class ExpenseDetail extends Component {
 const mapStateToProps = state => {
     return {
         token : state.log.token,
-        authenticated : state.log.authenticated
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
-        refreshToken : (data) => dispatch(refresh(data))
+        logoutHandler : () => dispatch(logout())
     }
 }
 export default connect(mapStateToProps,mapDispatchToProps)(ExpenseDetail);

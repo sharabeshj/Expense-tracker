@@ -6,11 +6,12 @@ import { loggedIn } from '../../store/Actions/ActionCreator';
 class Login extends Component{
     componentDidMount(){
         axios.post('/expensesToken',JSON.stringify({ code : this.props.authCode }),{ headers : { 'Content-Type' : 'application/json' } })
-                .then(res => {
-                    this.props.loginHandler(res.data['token']);
-                })
-                .then(() => this.props.history.replace('/expenses/expenseDetails'))
-                .catch(e => console.log(e));
+            .then(res => {
+                console.log(res);
+                this.props.loginHandler({ token : res.data.token, user_id : res.data.user_id});
+                this.props.history.replace('/expenses/expenseDetails');
+            })
+            .catch(e => console.log('error'));
     }
     render(){
         return <p>Login successful !! Redirecting</p>
