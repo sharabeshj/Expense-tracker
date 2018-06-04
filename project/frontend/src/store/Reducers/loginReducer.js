@@ -19,7 +19,8 @@ const loginHandler = (state = { authenticated :false },action) => {
             return {
                 ...state,
                 authenticated : false,
-                token : null
+                token : null,
+                user_id : null
             }
         default : 
             return state

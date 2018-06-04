@@ -15,14 +15,15 @@ import Paper from '@material-ui/core/Paper';
 import Checkbox from '@material-ui/core/Checkbox';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
-import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import { lighten } from '@material-ui/core/styles/colorManipulator';
+import SvgIcon from '@material-ui/core/SvgIcon';
+import { Button } from '@material-ui/core';
 
 let counter = 0;
 function createData(date,email,vendor,category,amount){
     counter += 1;
-    return { id : counter,date,email : email,vendor : email,category : category,amount : amount};
+    return { id : counter,date : date,email : email,vendor : vendor,category : category,amount : amount};
 }
 
 const columnData = [
@@ -113,6 +114,9 @@ const toolbarStyles = theme => ({
         title : {
             flex : '0 0 auto',
         },
+        button : {
+            margin : theme.spacing.unit,
+        }
 });
 
 let TableToolbar = props => {
@@ -138,13 +142,15 @@ let TableToolbar = props => {
             </div>
             
             <div className = { classes.spacer }/>
-            <button onClick = {props.handleSync}>Sync</button>
-            <div className = { classes.actions }>
+            <Button variant = "raised"  color = "secondary" onClick = {props.handleSync}>Sync</Button>
+            <div className = { classes.actions } >
                 { numSelected > 0 ? (
-                    <Tooltip title = "Delete">
-                        <IconButton aria-label = "Delete">
-                            <DeleteIcon />
-                        </IconButton>
+                    <Tooltip title = "Export" placement = "right">
+                        <Button variant = "fab" color = "secondary" aria-label = "Export" className = { classes.button } onClick = {props.handleExport} >
+                        <SvgIcon style={{width:'24px',height:'24px'}} viewBox={"0 0 24 24"}>
+                            <path fill="#000000" d="M23,12L19,8V11H10V13H19V16M1,18V6C1,4.89 1.9,4 3,4H15A2,2 0 0,1 17,6V9H15V6H3V18H15V15H17V18A2,2 0 0,1 15,20H3A2,2 0 0,1 1,18Z" />
+                        </SvgIcon>
+                        </Button>
                     </Tooltip>
                 ):(
                     <Tooltip title = "Filter list">
@@ -197,7 +203,7 @@ class ExpenseTable extends Component{
         console.log(nextProps.expensesDetails);
         newData = nextProps.expensesDetails.map(expense => {
             const data = JSON.parse(expense.expense_details);
-            expense = createData(data.created_at,data.creator_id,data.vendor,data.category,data.currency+' '+data.amount)
+            expense = createData(data.tx_created_at,data.us_email,data.tx_vendor,data.tx_org_category,data.tx_currency+' '+data.tx_amount)
             return expense
         });
         console.log(newData);
@@ -265,7 +271,7 @@ class ExpenseTable extends Component{
 
         return (
             <Paper className = { classes.root }>
-                <TableToolbar numSelected = { selected.length } handleSync = {this.props.handleSync}/>
+                <TableToolbar numSelected = { selected.length } handleSync = {this.props.handleSync} handleExport = { this.props.handleExport }/>
                 <div className = { classes.tableWrapper }>
                 <Table className = { classes.table } aria-labelledby = "tableTitle">
                     <Tablehead 
@@ -336,7 +342,8 @@ class ExpenseTable extends Component{
 
 ExpenseTable.propTypes = {
     classes : PropTypes.object.isRequired,
-    expensesDetails : PropTypes.array
+    expensesDetails : PropTypes.array,
+    handleExport : PropTypes.func.isRequired
 }
 
 
