@@ -1,11 +1,12 @@
 from flask import Blueprint,request,jsonify,make_response,session,redirect
 from project.models import Expense,Fyle_tokens,User
-from project import db,token_required,app
+from project import db,token_required,app,excel
 import requests
 import json
 from werkzeug.wrappers import Response
 import datetime
-import jwt
+import jwt 
+from slugify import slugify
 
 expenses_blueprint = Blueprint('expenses',__name__)
 
@@ -70,6 +71,39 @@ def get_all_expenses(current_user):
         output.append(expense_data)
 
     return jsonify({'expenses' : output})
+
+@expenses_blueprint.route('/expenses-csv',methods = ['POST'])
+@token_required
+def csv_data(current_user):
+    data = request.get_json()
+    expense_list = Expense.query.filter_by(user_id = current_user.id).all()
+    print(expense_list)
+    if data is not None:
+        csv = []
+        for id in data['list']:
+            data_csv = {}
+            for i in expense_list:
+                if i.ext_expense_id == id:
+                    data_csv['expense_details'] = i.expense_details
+            csv.append(data_csv)
+        filename = '{}_report'.format(slugify(current_user.email))
+    
+    csv_list = [[filename],['id','user-email','date','vendor-name','category','amount']]
+
+    print(csv)
+    for each in csv:
+        expense = json.loads(each['expense_details'])
+        
+        csv_list.append([
+            expense['tx_id'],
+            expense['us_email'],
+            expense['tx_created_at'],
+            expense['tx_vendor'],
+            expense['tx_org_category'],
+            expense['tx_amount']
+        ])
+    
+    return excel.make_response_from_array(csv_list,'csv',file_name=filename)
 
 @expenses_blueprint.route('/expense/<expense_id>',methods = ['GET'])
 @token_required

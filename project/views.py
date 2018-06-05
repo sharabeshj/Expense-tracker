@@ -19,7 +19,8 @@ def checkToken():
 @app.route('/refreshToken',methods = ['POST'])
 def RefreshToken():
     reqDataDict = request.get_json()
-    reqDataDict['grant-type'] = 'refresh_type'
+    print(reqDataDict)
+    reqDataDict['grant_type'] = 'refresh_type'
     reqDataDict['client_id'] = 'tpaWTytgNOxUO'
     reqDataDict['client_secret'] = 'sharabesh'
     current_user = User.query.filter_by(public_id = reqDataDict['user_id']).first()

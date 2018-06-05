@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from functools import wraps
 import jwt
+import flask_excel as excel
 
 
 #config
@@ -13,6 +14,7 @@ app.config.from_pyfile('flask.cfg')
 
 db = SQLAlchemy(app)
 migrate = Migrate(app,db)
+excel.init_excel(app)
 
 
 from .models import User

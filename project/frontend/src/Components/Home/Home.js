@@ -42,7 +42,7 @@ class Home extends Component {
                     this.props.history.replace('/expenses/expenseDetails');
                 })
                 .catch( e => {
-                    axios.post('/refreshToken',{ user_id : this.props.user_id })
+                    axios.post('/refreshToken',JSON.stringify({ user_id : this.props.user_id }),{ headers : { 'Content-Type' : 'application/json'}})
                         .then( res => this.props.loginHandler({ token : res.data.token, user_id : res.data.user_id }))
                 })
             

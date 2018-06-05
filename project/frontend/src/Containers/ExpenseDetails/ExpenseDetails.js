@@ -16,11 +16,12 @@ import { SvgIcon } from '@material-ui/core';
 
 class ExportOption extends Component {
     handleClose = () =>{
-        this.props.onClose(this.props.selectedValue);
+        this.props.onClose();
     }
 
     handleListItemClick = value => {
-        this.props.onClose(value);
+        this.props.handleClick(value);
+        this.props.onClose();
     };
 
     render () {
@@ -67,7 +68,8 @@ class ExpenseDetail extends Component {
         this.state = {
             expensesDetails : [],
             open : false,
-            selectedValue : 'csv'
+            selectedValue : '',
+            list : []
         }
     }
     componentDidMount(){
@@ -94,21 +96,30 @@ class ExpenseDetail extends Component {
                 .catch(e => console.log(e));
                 })
     }
-    handleExport = e => {
-        this.setState({ open : true });
+    handleExport = list => {
+        console.log(list);
+        this.setState({ open : true,list : list });
     }
-    handleBack = value => {
-        this.setState({ selectedValue : value,open : false });
+    handleBack = () => {
+        this.setState({ selectedValue : '',open : false });
+    }
+    handleClick = (value) => {
+        if(value === 'csv'){
+            axios.post('/expenses-csv',JSON.stringify({ list : this.state.list }),{ headers : { "x-access-token" : this.props.token,"Content-Type" : "application/json" }})
+                .then(res => console.log(res.data))
+                .catch(e => console.log(e));
+        }
     }
     render(){
         return (
             <Aux>
-                <ExpenseTable expensesDetails = {this.state.expensesDetails} handleSync = {this.handleSync} handleExport = { this.handleExport }/>
+                <ExpenseTable expensesDetails = {this.state.expensesDetails} handleSync = {this.handleSync} handleExport = { this.handleExport } />
                 <ExportOption
                     aria-labelledby = "simple-modal-title"
                     aria-describedby = "simple-modal-description"
                     open = { this.state.open }
                     onClose = { this.handleBack }
+                    handleClick = { this.handleClick }
                 />
             </Aux>
         )

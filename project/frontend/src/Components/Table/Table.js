@@ -21,9 +21,9 @@ import SvgIcon from '@material-ui/core/SvgIcon';
 import { Button } from '@material-ui/core';
 
 let counter = 0;
-function createData(date,email,vendor,category,amount){
+function createData(date,email,vendor,category,amount,tx_id){
     counter += 1;
-    return { id : counter,date : date,email : email,vendor : vendor,category : category,amount : amount};
+    return { id : counter,date : date,email : email,vendor : vendor,category : category,amount : amount,tx_id : tx_id};
 }
 
 const columnData = [
@@ -203,10 +203,9 @@ class ExpenseTable extends Component{
         console.log(nextProps.expensesDetails);
         newData = nextProps.expensesDetails.map(expense => {
             const data = JSON.parse(expense.expense_details);
-            expense = createData(data.tx_created_at,data.us_email,data.tx_vendor,data.tx_org_category,data.tx_currency+' '+data.tx_amount)
+            expense = createData(data.tx_created_at,data.us_email,data.tx_vendor,data.tx_org_category,data.tx_currency+' '+data.tx_amount,data.tx_id)
             return expense
         });
-        console.log(newData);
         this.setState({ data : newData });
     }
     handleRequestSort = (event,property) => {
@@ -227,7 +226,7 @@ class ExpenseTable extends Component{
 
     handleSelectAllClick = (event,checked) => {
         if(checked){
-            this.setState({ selected : this.state.data.map(n => n.id ) });
+            this.setState({ selected : this.state.data.map(n => n.tx_id ) });
             return;
         }
         this.setState({ selected : [] });
@@ -271,7 +270,7 @@ class ExpenseTable extends Component{
 
         return (
             <Paper className = { classes.root }>
-                <TableToolbar numSelected = { selected.length } handleSync = {this.props.handleSync} handleExport = { this.props.handleExport }/>
+                <TableToolbar numSelected = { selected.length } handleSync = {this.props.handleSync} handleExport = { () => this.props.handleExport(this.state.selected) }/>
                 <div className = { classes.tableWrapper }>
                 <Table className = { classes.table } aria-labelledby = "tableTitle">
                     <Tablehead 
@@ -284,11 +283,11 @@ class ExpenseTable extends Component{
                     />
                     <TableBody>
                         { data.slice(page * rowsPerPage,page * rowsPerPage + rowsPerPage).map( n => {
-                            const isSelected = this.isSelected(n.id);
+                            const isSelected = this.isSelected(n.tx_id);
                             return (
                                 <TableRow
                                     hover 
-                                    onClick = { event => this.handleClick(event,n.id)}
+                                    onClick = { event => this.handleClick(event,n.tx_id)}
                                     role = "checkbox"
                                     aria-checked = { isSelected }
                                     tabIndex = { -1 }
