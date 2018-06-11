@@ -12,7 +12,6 @@ class Redirect extends Component{
     componentDidMount(){
         axios.get('/authorizationCredentials',{ headers : { 'x-access-token' : this.props.token }})
             .then(res => {
-                console.log(res);
                 this.setState({ data : res.data.client_id })
             })
     }

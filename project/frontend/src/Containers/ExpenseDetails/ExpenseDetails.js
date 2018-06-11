@@ -13,6 +13,9 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { SvgIcon } from '@material-ui/core';
 
+const ReactDOMServer = require('react-dom/server');
+const FileDownload = require('js-file-download');
+
 
 class ExportOption extends Component {
     handleClose = () =>{
@@ -97,7 +100,6 @@ class ExpenseDetail extends Component {
                 })
     }
     handleExport = list => {
-        console.log(list);
         this.setState({ open : true,list : list });
     }
     handleBack = () => {
@@ -106,8 +108,12 @@ class ExpenseDetail extends Component {
     handleClick = (value) => {
         if(value === 'csv'){
             axios.post('/expenses-csv',JSON.stringify({ list : this.state.list }),{ headers : { "x-access-token" : this.props.token,"Content-Type" : "application/json" }})
-                .then(res => console.log(res.data))
+                .then(res => FileDownload(res.data,'report.csv'))
                 .catch(e => console.log(e));
+        }
+        if(value === 'pdf'){
+            const Table = React.createFactory(ExpenseTable);
+            console.log(ReactDOMServer.renderToString(Table()));
         }
     }
     render(){

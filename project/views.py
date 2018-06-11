@@ -20,7 +20,7 @@ def checkToken():
 def RefreshToken():
     reqDataDict = request.get_json()
     print(reqDataDict)
-    reqDataDict['grant_type'] = 'refresh_type'
+    reqDataDict['grant_type'] = 'refresh_token'
     reqDataDict['client_id'] = 'tpaWTytgNOxUO'
     reqDataDict['client_secret'] = 'sharabesh'
     current_user = User.query.filter_by(public_id = reqDataDict['user_id']).first()
@@ -38,8 +38,8 @@ def RefreshToken():
         fyle_token.tokens = json.dumps(tokens)
         db.session.commit()
         token = jwt.encode({'public_id' : current_user.public_id,'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes = 60)},app.config['SECRET_KEY'])
-        return jsonify({ 'token' : token })
-    return jsonify({ ' message ' : 'error occured'})
+        return jsonify({ 'token' : token.decode('UTF-8') })
+    return make_response('error occured',500)
 
 @app.route('/authorizationCredentials')
 def authorizationCredentials():

@@ -200,7 +200,6 @@ class ExpenseTable extends Component{
 
     componentWillReceiveProps(nextProps){
         let newData = [];
-        console.log(nextProps.expensesDetails);
         newData = nextProps.expensesDetails.map(expense => {
             const data = JSON.parse(expense.expense_details);
             expense = createData(data.tx_created_at,data.us_email,data.tx_vendor,data.tx_org_category,data.tx_currency+' '+data.tx_amount,data.tx_id)

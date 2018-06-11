@@ -1,4 +1,4 @@
-from flask import Blueprint,request,jsonify,make_response,session,redirect
+from flask import Blueprint,request,jsonify,make_response,session,redirect,send_file
 from project.models import Expense,Fyle_tokens,User
 from project import db,token_required,app,excel
 import requests
@@ -6,7 +6,11 @@ import json
 from werkzeug.wrappers import Response
 import datetime
 import jwt 
+import zipfile
 from slugify import slugify
+import tempfile
+import uuid
+import os
 
 expenses_blueprint = Blueprint('expenses',__name__)
 
@@ -77,7 +81,9 @@ def get_all_expenses(current_user):
 def csv_data(current_user):
     data = request.get_json()
     expense_list = Expense.query.filter_by(user_id = current_user.id).all()
-    print(expense_list)
+    fyle_token = Fyle_tokens.query.filter_by(user_id = current_user.id).first()
+    tokens = json.loads(fyle_token.tokens) 
+    access_token = tokens['access_token']
     if data is not None:
         csv = []
         for id in data['list']:
@@ -88,23 +94,47 @@ def csv_data(current_user):
             csv.append(data_csv)
         filename = '{}_report'.format(slugify(current_user.email))
     
-    csv_list = [[filename],['id','user-email','date','vendor-name','category','amount']]
-
-    print(csv)
-    for each in csv:
-        expense = json.loads(each['expense_details'])
+        csv_list = [[filename],['id','user-email','date','vendor-name','category','amount']]
         
-        csv_list.append([
-            expense['tx_id'],
-            expense['us_email'],
-            expense['tx_created_at'],
-            expense['tx_vendor'],
-            expense['tx_org_category'],
-            expense['tx_amount']
-        ])
-    
-    return excel.make_response_from_array(csv_list,'csv',file_name=filename)
-
+        for each in csv:
+            expense = json.loads(each['expense_details'])
+            url = 'https://staging.fyle.in/api/files?transaction_id='+expense['tx_id']
+            result = requests.get(url,headers = { "X-AUTH-TOKEN" : access_token })
+            if result.status_code == 200 and result.text is not []:
+                resultDict = json.loads(result.text)
+                for f in resultDict:
+                    resFileURL = requests.post('https://staging.fyle.in/api/files/'+f['id']+'/download_url',headers = { "X-AUTH-TOKEN" : access_token })
+                    resFileURLDict = json.loads(resFileURL.text)
+                    
+                    resFile = requests.get(resFileURLDict['url'])
+                    location = '/tmp/' +f['name']
+                    fp = open(location,'wb') 
+                    fp.write(resFile.content)
+                    fp.close()
+                zipf = zipfile.ZipFile('report.zip','w',zipfile.ZIP_DEFLATED)    
+                for roots,dirs,files in os.walk('/tmp/'):
+                    for f in files:
+                        print(f)
+                        try:
+                            zipf.write('/tmp/'+f)
+                        except:
+                            zipf.close()
+                            return send_file('../report.zip',mimetype = 'zip',attachment_filename='report.zip',as_attachment=True)
+                zipf.close()
+                try:
+                    return send_file('report.zip',mimetype = 'zip',attachment_filename='report.zip',as_attachment=True)
+                except:
+                    return make_response('Error',500)
+            csv_list.append([
+                expense['tx_id'],
+                expense['us_email'],
+                expense['tx_created_at'],
+                expense['tx_vendor'],
+                expense['tx_org_category'],
+                expense['tx_amount']
+            ])
+        
+    return make_response('error',500)
 @expenses_blueprint.route('/expense/<expense_id>',methods = ['GET'])
 @token_required
 def get_one_expense(current_user,expense_id):
