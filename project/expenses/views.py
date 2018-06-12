@@ -8,9 +8,9 @@ import datetime
 import jwt 
 import zipfile
 from slugify import slugify
-import tempfile
-import uuid
-import os
+import io
+import time
+import pathlib
 
 expenses_blueprint = Blueprint('expenses',__name__)
 
@@ -102,38 +102,31 @@ def csv_data(current_user):
             result = requests.get(url,headers = { "X-AUTH-TOKEN" : access_token })
             if result.status_code == 200 and result.text is not []:
                 resultDict = json.loads(result.text)
-                for f in resultDict:
-                    resFileURL = requests.post('https://staging.fyle.in/api/files/'+f['id']+'/download_url',headers = { "X-AUTH-TOKEN" : access_token })
-                    resFileURLDict = json.loads(resFileURL.text)
-                    
-                    resFile = requests.get(resFileURLDict['url'])
-                    location = '/tmp/' +f['name']
-                    fp = open(location,'wb') 
-                    fp.write(resFile.content)
-                    fp.close()
-                zipf = zipfile.ZipFile('report.zip','w',zipfile.ZIP_DEFLATED)    
-                for roots,dirs,files in os.walk('/tmp/'):
-                    for f in files:
-                        print(f)
-                        try:
-                            zipf.write('/tmp/'+f)
-                        except:
-                            zipf.close()
-                            return send_file('../report.zip',mimetype = 'zip',attachment_filename='report.zip',as_attachment=True)
-                zipf.close()
-                try:
-                    return send_file('report.zip',mimetype = 'zip',attachment_filename='report.zip',as_attachment=True)
-                except:
-                    return make_response('Error',500)
-            csv_list.append([
-                expense['tx_id'],
-                expense['us_email'],
-                expense['tx_created_at'],
-                expense['tx_vendor'],
-                expense['tx_org_category'],
-                expense['tx_amount']
-            ])
-        
+                data = io.BytesIO()
+                with zipfile.ZipFile(data,"w") as z:
+                    for f in resultDict:
+                        resFileURL = requests.post('https://staging.fyle.in/api/files/'+f['id']+'/download_url',headers = { "X-AUTH-TOKEN" : access_token })
+                        resFileURLDict = json.loads(resFileURL.text)
+                        
+                        resFile = requests.get(resFileURLDict['url'])
+                        location = '/tmp/' +f['name']
+                        fp = open(location,'wb') 
+                        fp.write(resFile.content)
+                        fp.close()
+                        file_data = zipfile.ZipInfo('/tmp/'+f['name'])
+                        file_data.date_time = time.localtime(time.time())[:6]
+                        file_data.compress_type = zipfile.ZIP_DEFLATED
+                        with open('/tmp/'+f['name'],encoding = "ISO-8859-1") as fd:
+                            read_data = fd.read()
+                        fd.close()  
+                        z.writestr(file_data,read_data)
+                data.seek(0) 
+                print(data.read())
+                return send_file(
+                        data,
+                        as_attachment=True,
+                        attachment_filename='data.zip',
+                    )
     return make_response('error',500)
 @expenses_blueprint.route('/expense/<expense_id>',methods = ['GET'])
 @token_required
