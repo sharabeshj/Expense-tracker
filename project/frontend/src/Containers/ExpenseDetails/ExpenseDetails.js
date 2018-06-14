@@ -108,7 +108,7 @@ class ExpenseDetail extends Component {
     handleClick = (value) => {
         if(value === 'csv'){
             axios.post('/expenses-csv',JSON.stringify({ list : this.state.list }),{ headers : { "x-access-token" : this.props.token,"Content-Type" : "application/json" }})
-                .then(res => FileDownload(res.data,'report.csv'))
+                .then(res => console.log(res))
                 .catch(e => console.log(e));
         }
         if(value === 'pdf'){

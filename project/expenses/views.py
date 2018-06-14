@@ -1,6 +1,6 @@
 from flask import Blueprint,request,jsonify,make_response,session,redirect,send_file
 from project.models import Expense,Fyle_tokens,User
-from project import db,token_required,app,excel
+from project import db,token_required,app
 import requests
 import json
 from werkzeug.wrappers import Response
@@ -10,7 +10,11 @@ import zipfile
 from slugify import slugify
 import io
 import time
-import pathlib
+import os
+import tempfile
+import shutil
+import csv
+import errno
 
 expenses_blueprint = Blueprint('expenses',__name__)
 
@@ -85,96 +89,64 @@ def csv_data(current_user):
     tokens = json.loads(fyle_token.tokens) 
     access_token = tokens['access_token']
     if data is not None:
-        csv = []
+        csv_content = []
         for id in data['list']:
             data_csv = {}
             for i in expense_list:
                 if i.ext_expense_id == id:
                     data_csv['expense_details'] = i.expense_details
-            csv.append(data_csv)
+            csv_content.append(data_csv)
         filename = '{}_report'.format(slugify(current_user.email))
     
         csv_list = [[filename],['id','user-email','date','vendor-name','category','amount']]
-        
-        for each in csv:
+        tmpdir = tempfile.mkdtemp()
+        for each in csv_content:
             expense = json.loads(each['expense_details'])
             url = 'https://staging.fyle.in/api/files?transaction_id='+expense['tx_id']
             result = requests.get(url,headers = { "X-AUTH-TOKEN" : access_token })
             if result.status_code == 200 and result.text is not []:
                 resultDict = json.loads(result.text)
-                data = io.BytesIO()
-                with zipfile.ZipFile(data,"w") as z:
-                    for f in resultDict:
-                        resFileURL = requests.post('https://staging.fyle.in/api/files/'+f['id']+'/download_url',headers = { "X-AUTH-TOKEN" : access_token })
-                        resFileURLDict = json.loads(resFileURL.text)
-                        
-                        resFile = requests.get(resFileURLDict['url'])
-                        location = '/tmp/' +f['name']
-                        fp = open(location,'wb') 
-                        fp.write(resFile.content)
-                        fp.close()
-                        file_data = zipfile.ZipInfo('/tmp/'+f['name'])
-                        file_data.date_time = time.localtime(time.time())[:6]
-                        file_data.compress_type = zipfile.ZIP_DEFLATED
-                        with open('/tmp/'+f['name'],encoding = "ISO-8859-1") as fd:
-                            read_data = fd.read()
-                        fd.close()  
-                        z.writestr(file_data,read_data)
-                data.seek(0) 
-                print(data.read())
-                return send_file(
-                        data,
-                        as_attachment=True,
-                        attachment_filename='data.zip',
-                    )
-    return make_response('error',500)
-@expenses_blueprint.route('/expense/<expense_id>',methods = ['GET'])
-@token_required
-def get_one_expense(current_user,expense_id):
-    expense = Expense.query.filter_by(expense_id = expense_id,user_id = current_user.id)
+                for f in resultDict:
+                    resFileURL = requests.post('https://staging.fyle.in/api/files/'+f['id']+'/download_url',headers = { "X-AUTH-TOKEN" : access_token })
+                    resFileURLDict = json.loads(resFileURL.text)
+                    
+                    resFile = requests.get(resFileURLDict['url'])
+                    fname = 'attachments/'+expense['tx_created_at']+'/'+f['name']
+                    path = os.path.join(tmpdir,fname)
+                    if not os.path.exists(os.path.dirname(path)):
+                        try:
+                            os.makedirs(os.path.dirname(path))
+                        except OSError as exc:
+                            if exc.errno != errno.EEXIST:
+                                raise
 
-    if not expense:
-        return jsonify({'message' : 'No expenses to show'})
-        
-    expense_data = expense.expense_details
+                    with open(path,"wb") as tmp:
+                        tmp.write(resFile.content)
+            csv_list.append([expense['tx_id'],
+                expense['us_email'],
+                expense['tx_created_at'],
+                expense['tx_platform_vendor'],
+                expense['tx_currency'],
+                expense['tx_amount']
+            ])
+        new_path = os.path.join(tmpdir,'report.csv')
+        with open(new_path,"w") as f:
+            wr = csv.writer(f,delimiter = ',',quoting=csv.QUOTE_ALL)
+            wr.writerows(csv_list)
+        try:
+            root_path = os.path.sep.join(app.instance_path.split(os.path.sep)[:-1])
+            print(os.path.abspath(os.path.join(root_path,'data.zip')))
+            zf  = zipfile.ZipFile(os.path.abspath(os.path.join(root_path,'data.zip')),"w",zipfile.ZIP_DEFLATED)
+            abs_src = os.path.abspath(tmpdir)
+            for dirname,subdirs,files in os.walk(tmpdir):
+                for filename in files:
+                    absname = os.path.abspath(os.path.join(dirname,filename))
+                    arcname = absname[len(abs_src)+1:]
+                    print ('zipping %s as %s' % (os.path.join(dirname,filename),arcname))
+                    zf.write(absname,arcname)
+            zf.close()
+        finally:
+            shutil.rmtree(tmpdir,ignore_errors = True)
+        print(os.path.abspath(os.path.join(root_path,'data.zip')))
+        return redirect('/aws-create')
 
-    return jsonify({'expense' : expense_data})
-
-@expenses_blueprint.route('/expenses',methods = ['POST'])
-@token_required
-def create_expense(current_user):
-    data = request.get_json()
-
-    new_expense = Expense(created_at = data['created_at'],updated_at = data['updated_at'],expense_details = data['details'],user_id = current_user.id)
-    db.session.add(new_expense)
-    db.session.commit()
-
-    return jsonify({'message' : 'New expense has been created'})
-
-@expenses_blueprint.route('/expense/<expense_id>',methods = ['PUT'])
-@token_required
-def edit_expense(current_user,expense_id):
-    data = request.get_json()
-
-    expense = Expense.query.filter_by(expense_id = expense_id,user_id = current_user.id).first()
-    
-    if not expense:
-        return jsonify({'message' : 'No expense found'})
-    
-    expense.expense_details = data
-    db.session.commit()
-
-    return jsonify({'message' : 'expense has been updated'})
-
-@expenses_blueprint.route('/expense/<expense_id>',methods = ['DELETE'])
-@token_required
-def delete_expense(current_user,expense_id):
-    expense = Expense.query.filter_by(expense_id = expense_id,user_id = current_user.id).first()
-
-    if not expense:
-        return jsonify({'message': 'Expense not found'})
-
-    db.session.delete(expense)
-    db.commit()
-
-    return jsonify({'message' : 'Expense deleted'})

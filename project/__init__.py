@@ -4,7 +4,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from functools import wraps
 import jwt
-import flask_excel as excel
 
 
 #config
@@ -14,7 +13,6 @@ app.config.from_pyfile('flask.cfg')
 
 db = SQLAlchemy(app)
 migrate = Migrate(app,db)
-excel.init_excel(app)
 
 
 from .models import User
@@ -44,9 +42,11 @@ def token_required(f):
 #blueprints 
 from . import views
 from project.users.views import users_blueprint
+from project.aws.views import aws_blueprint
 from project.expenses.views import expenses_blueprint
 
 app.register_blueprint(users_blueprint)
+app.register_blueprint(aws_blueprint)
 app.register_blueprint(expenses_blueprint)
 
 
