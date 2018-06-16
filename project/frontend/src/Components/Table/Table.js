@@ -19,6 +19,11 @@ import FilterListIcon from '@material-ui/icons/FilterList';
 import { lighten } from '@material-ui/core/styles/colorManipulator';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import { Button } from '@material-ui/core';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import CheckIcon from '@material-ui/icons/Check';
+import SaveIcon from '@material-ui/icons/Save';
+import green from '@material-ui/core/colors/green';
+import pink from '@material-ui/core/colors/pink';
 
 let counter = 0;
 function createData(date,email,vendor,category,amount,tx_id){
@@ -114,13 +119,24 @@ const toolbarStyles = theme => ({
         title : {
             flex : '0 0 auto',
         },
+        wrapper : {
+            margin : theme.spacing.unit,
+            position : 'relative'
+        },
         button : {
             margin : theme.spacing.unit,
+        },
+        fabProgress : {
+            color : green[500],
+            position : 'absolute',
+            top : -6,
+            left : -6,
+            zIndex : 1
         }
 });
 
 let TableToolbar = props => {
-    const { numSelected,classes } = props;
+    const { numSelected,classes,loading,success } = props;
     return (
         <Toolbar
             className = { classNames(classes.root,{
@@ -146,11 +162,12 @@ let TableToolbar = props => {
             <div className = { classes.actions } >
                 { numSelected > 0 ? (
                     <Tooltip title = "Export" placement = "right">
+                    <div className = {classes.wrapper}>
                         <Button variant = "fab" color = "secondary" aria-label = "Export" className = { classes.button } onClick = {props.handleExport} >
-                        <SvgIcon style={{width:'24px',height:'24px'}} viewBox={"0 0 24 24"}>
-                            <path fill="#000000" d="M23,12L19,8V11H10V13H19V16M1,18V6C1,4.89 1.9,4 3,4H15A2,2 0 0,1 17,6V9H15V6H3V18H15V15H17V18A2,2 0 0,1 15,20H3A2,2 0 0,1 1,18Z" />
-                        </SvgIcon>
+                            {success ? <CheckIcon style = {{ color : pink[500], '&:hover' : { color : pink[700]}}}/>}
                         </Button>
+                        {loading && <CircularProgress size = {24} className = {classes.fabProgress}/>}
+                    </div>
                     </Tooltip>
                 ):(
                     <Tooltip title = "Filter list">
@@ -167,6 +184,8 @@ let TableToolbar = props => {
 TableToolbar.propTypes = {
     classes : PropTypes.object.isRequired,
     numSelected : PropTypes.number.isRequired,
+    loading : PropTypes.bool.isRequired,
+    success : PropTypes.bool.isRequired
 };
 
 TableToolbar = withStyles(toolbarStyles)(TableToolbar);
@@ -269,7 +288,7 @@ class ExpenseTable extends Component{
 
         return (
             <Paper className = { classes.root }>
-                <TableToolbar numSelected = { selected.length } handleSync = {this.props.handleSync} handleExport = { () => this.props.handleExport(this.state.selected) }/>
+                <TableToolbar numSelected = { selected.length } handleSync = {this.props.handleSync} handleExport = { () => this.props.handleExport(this.state.selected) } loading = {this.props.loading} success = {this.props.success}/>
                 <div className = { classes.tableWrapper }>
                 <Table className = { classes.table } aria-labelledby = "tableTitle">
                     <Tablehead 
@@ -341,7 +360,9 @@ class ExpenseTable extends Component{
 ExpenseTable.propTypes = {
     classes : PropTypes.object.isRequired,
     expensesDetails : PropTypes.array,
-    handleExport : PropTypes.func.isRequired
+    handleExport : PropTypes.func.isRequired,
+    loading : PropTypes.bool.isRequired,
+    success : PropTypes.bool.isRequired
 }
 
 

@@ -72,7 +72,9 @@ class ExpenseDetail extends Component {
             expensesDetails : [],
             open : false,
             selectedValue : '',
-            list : []
+            list : [],
+            loading : false,
+            success : false 
         }
     }
     componentDidMount(){
@@ -82,10 +84,10 @@ class ExpenseDetail extends Component {
                     this.props.history.replace('/')
                 })
                 .then(() => {
-                    axios.get('/expenses',{ headers : { "x-access-token" : this.props.token }})
-                        .then( res => {
-                            this.setState({ expensesDetails : res.data.expenses});
-                        })
+                    return axios.get('/expenses',{ headers : { "x-access-token" : this.props.token }})
+                })
+                .then( res => {
+                    this.setState({ expensesDetails : res.data.expenses});
                 })
         
         }
@@ -106,9 +108,12 @@ class ExpenseDetail extends Component {
         this.setState({ selectedValue : '',open : false });
     }
     handleClick = (value) => {
+        this.setState({ loading : true,success : false  })
         if(value === 'csv'){
             axios.post('/expenses-csv',JSON.stringify({ list : this.state.list }),{ headers : { "x-access-token" : this.props.token,"Content-Type" : "application/json" }})
-                .then(res => console.log(res))
+                .then(res => {
+                    this.setState({ loading : false, success : true })
+                })
                 .catch(e => console.log(e));
         }
         if(value === 'pdf'){
@@ -119,7 +124,7 @@ class ExpenseDetail extends Component {
     render(){
         return (
             <Aux>
-                <ExpenseTable expensesDetails = {this.state.expensesDetails} handleSync = {this.handleSync} handleExport = { this.handleExport } />
+                <ExpenseTable expensesDetails = {this.state.expensesDetails} handleSync = {this.handleSync} handleExport = { this.handleExport } loading = {this.state.loading} success = {this.state.success}/>
                 <ExportOption
                     aria-labelledby = "simple-modal-title"
                     aria-describedby = "simple-modal-description"

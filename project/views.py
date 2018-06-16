@@ -5,6 +5,7 @@ from project.models import User,Fyle_tokens
 import jwt
 import datetime
 import json
+import os
 
 @app.route('/checkToken',methods = ['POST'])
 def checkToken():
@@ -43,4 +44,4 @@ def RefreshToken():
 
 @app.route('/authorizationCredentials')
 def authorizationCredentials():
-    return jsonify({ "client_id" : 'tpaWTytgNOxUO', 'client_secret' : 'sharabesh'})
+    return jsonify({ "client_id" : os.getenv('CLIENT_ID','tpaWTytgNOxUO'), 'client_secret' : os.getenv('CLIENT_SECRET','sharabesh')})
