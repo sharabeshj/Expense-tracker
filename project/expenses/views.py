@@ -3,12 +3,10 @@ from project.models import Expense,Fyle_tokens,User
 from project import db,token_required,app
 import requests
 import json
-from werkzeug.wrappers import Response
 import datetime
 import jwt 
 import zipfile
 from slugify import slugify
-import io
 import time
 import os
 import tempfile
@@ -26,7 +24,6 @@ def TokenGen():
     dataDict['grant_type'] = 'authorization_code'
     resToken = requests.post(url='https://staging.fyle.in/api/oauth/token',headers = {'Content-Type' : 'Application/json'},json = dataDict)
     resTokenDict = json.loads(resToken.text)
-    print(resTokenDict)
     if resToken.status_code == 200:
         resCred = requests.get('https://staging.fyle.in/api/eous/current',headers = { 'x-auth-token' : resTokenDict['access_token']})
         if resCred.status_code == 200:
@@ -55,7 +52,6 @@ def fetchAPI(current_user):
     access_token = tokens['access_token']
     res = requests.get(url = 'https://staging.fyle.in/api/etxns/company',headers = { "X-AUTH-TOKEN" : access_token })
     resDict = json.loads(res.text)
-    print(resDict)
     for expense in resDict:
         old_expense = Expense.query.filter_by(ext_expense_id = expense['tx_id']).first()
         if not old_expense:

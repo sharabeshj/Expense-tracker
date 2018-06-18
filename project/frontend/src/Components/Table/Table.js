@@ -123,20 +123,41 @@ const toolbarStyles = theme => ({
             margin : theme.spacing.unit,
             position : 'relative'
         },
+        btnroot:{
+            display : 'flex',
+        },
         button : {
             margin : theme.spacing.unit,
         },
+        btnSucesss : {
+            backgroundColor : green[500],
+            '&:hover' : {
+                backgroundColor : green[700]
+            }
+        }
+        ,
         fabProgress : {
             color : green[500],
             position : 'absolute',
             top : -6,
             left : -6,
             zIndex : 1
+        },
+        btnProgess : {
+            color : green[500],
+            position : 'absolute',
+            top : '50%',
+            left : '50%',
+            marginTop : -12,
+            marginLeft : -12
         }
 });
 
 let TableToolbar = props => {
-    const { numSelected,classes,loading,success } = props;
+    const { numSelected,classes,loading,success,syncSuccess,syncLoad } = props;
+    const buttonClassname = classNames({
+        [classes.btnSucesss] : syncSuccess
+    })
     return (
         <Toolbar
             className = { classNames(classes.root,{
@@ -158,15 +179,18 @@ let TableToolbar = props => {
             </div>
             
             <div className = { classes.spacer }/>
-            <Button variant = "raised"  color = "secondary" onClick = {props.handleSync}>Sync</Button>
-            <div className = { classes.actions } >
+            <div className = {classes.wrapper}>
+            <Button variant = "raised"  color = "secondary" disabled = {props.syncLoad} className = {buttonClassname} onClick = {props.handleSync}>Sync</Button>
+            {syncLoad && <CircularProgress size = {24} className = {classes.btnProgess} />}
+            </div>
+            <div className = {classes.button}>
                 { numSelected > 0 ? (
                     <Tooltip title = "Export" placement = "right">
                     <div className = {classes.wrapper}>
-                        <Button variant = "fab" color = "secondary" aria-label = "Export" className = { classes.button } onClick = {props.handleExport} >
-                            {success ? <CheckIcon style = {{ color : pink[500], '&:hover' : { color : pink[700]}}}/>}
-                        </Button>
-                        {loading && <CircularProgress size = {24} className = {classes.fabProgress}/>}
+                        <Button variant = "fab" color = "secondary" aria-label = "Export" disabled = {props.loading} onClick = {props.handleExport} >
+                            {success ? <CheckIcon />: <SaveIcon />}
+                         </Button>
+                        {loading && <CircularProgress size = {68} className = {classes.fabProgress}/>}
                     </div>
                     </Tooltip>
                 ):(
@@ -288,7 +312,7 @@ class ExpenseTable extends Component{
 
         return (
             <Paper className = { classes.root }>
-                <TableToolbar numSelected = { selected.length } handleSync = {this.props.handleSync} handleExport = { () => this.props.handleExport(this.state.selected) } loading = {this.props.loading} success = {this.props.success}/>
+                <TableToolbar numSelected = { selected.length } handleSync = {this.props.handleSync} handleExport = { () => this.props.handleExport(this.state.selected) } loading = {this.props.loading} success = {this.props.success} syncLoad = {this.props.syncLoad} syncSuccess = {this.props.syncSuccess}/>
                 <div className = { classes.tableWrapper }>
                 <Table className = { classes.table } aria-labelledby = "tableTitle">
                     <Tablehead 

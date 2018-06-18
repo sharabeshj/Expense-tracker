@@ -14,7 +14,6 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { SvgIcon } from '@material-ui/core';
 
 const ReactDOMServer = require('react-dom/server');
-const FileDownload = require('js-file-download');
 
 
 class ExportOption extends Component {
@@ -64,6 +63,9 @@ ExportOption.propTypes = {
     selectedValue : PropTypes.string
 }
 
+class DownloadOptions extends Component{
+    handleClose = () => this.props.onClose()
+}
 
 class ExpenseDetail extends Component {
     constructor(props){
@@ -74,7 +76,9 @@ class ExpenseDetail extends Component {
             selectedValue : '',
             list : [],
             loading : false,
-            success : false 
+            success : false,
+            syncLoad : false,
+            syncSuccess : false 
         }
     }
     componentDidMount(){
@@ -92,11 +96,12 @@ class ExpenseDetail extends Component {
         
         }
     handleSync = (e) => {
+        this.setState({ syncLoad : true, syncSuccess : false })
         axios.get('/expensesFetchAPI',{ headers : { "x-access-token" : this.props.token}})
             .then(res => {
                 axios.get('/expenses',{ headers : { "x-access-token" : this.props.token }})
                 .then( res => {
-                    this.setState({ expensesDetails : res.data.expenses});
+                    this.setState({ expensesDetails : res.data.expenses,syncLoad : false, syncSuccess : true });
                 })
                 .catch(e => console.log(e));
                 })
@@ -110,7 +115,7 @@ class ExpenseDetail extends Component {
     handleClick = (value) => {
         this.setState({ loading : true,success : false  })
         if(value === 'csv'){
-            axios.post('/expenses-csv',JSON.stringify({ list : this.state.list }),{ headers : { "x-access-token" : this.props.token,"Content-Type" : "application/json" }})
+            axios({ method : 'post',url : '/expenses-csv',timeout : 3600000, data : JSON.stringify({ list : this.state.list }),headers : { "x-access-token" : this.props.token,"Content-Type" : "application/json","Connection" : "keep-alive","keep-alive" : "timeout = 3600000,max = 100" }})
                 .then(res => {
                     this.setState({ loading : false, success : true })
                 })
@@ -124,7 +129,7 @@ class ExpenseDetail extends Component {
     render(){
         return (
             <Aux>
-                <ExpenseTable expensesDetails = {this.state.expensesDetails} handleSync = {this.handleSync} handleExport = { this.handleExport } loading = {this.state.loading} success = {this.state.success}/>
+                <ExpenseTable expensesDetails = {this.state.expensesDetails} handleSync = {this.handleSync} handleExport = { this.handleExport } loading = {this.state.loading} success = {this.state.success}syncLoad = {this.state.syncLoad} syncSuccess = {this.state.syncSuccess}/>
                 <ExportOption
                     aria-labelledby = "simple-modal-title"
                     aria-describedby = "simple-modal-description"
