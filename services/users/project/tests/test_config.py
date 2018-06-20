@@ -21,6 +21,7 @@ class TestDevelopmentConfig(TestCase):
             app.config['SQLALCHEMY_DATABASE_URI'] == 
             os.environ.get('DATABASE_URL')
         )
+        self.assertTrue(app.config['DEBUG_TB_ENABLED'])
 
 class TestTestingConfig(TestCase):
     def create_app(self):
@@ -35,6 +36,7 @@ class TestTestingConfig(TestCase):
             app.config['SQLALCHEMY_DATABASE_URI'] ==
             os.environ.get('DATABASE_TEST_URL')
         )
+        self.assertFalse(app.config['DEBUG_TB_ENABLED'])
 
 class TestProductionConfig(TestCase):
     def create_app(self):
@@ -44,6 +46,7 @@ class TestProductionConfig(TestCase):
     def test_app_is_production(self):
         self.assertTrue(app.config['SECRET_KEY'] == 'M\xa3\xcc]*|\x93R\x08|\xc0\xab4\x80S\xf8\xad\x8e\xb9\xa4\x0c\xd8\xf4\x84')
         self.assertFalse(app.config['TESTING'])
+        self.assertFalse(app.config['DEBUG_TB_ENABLED'])
 
 if __name__ == '__main__':
     unittest.main()
