@@ -16,6 +16,7 @@ services :
       - APP_SETTINGS=project.config.DevelopmentConfig
       - DATABASE_URL=postgres://postgres:postgres@users-db:5432/users_dev
       - DATABASE_TEST_URL=postgres://postgres:postgres@users-db:5432/users_test
+      - SECRET_KEY='M\xa3\xcc]*|\x93R\x08|\xc0\xab4\x80S\xf8\xad\x8e\xb9\xa4\x0c\xd8\xf4\x84'
     depends_on:
       - users-db
     links : 
