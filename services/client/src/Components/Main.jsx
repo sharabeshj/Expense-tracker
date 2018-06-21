@@ -11,7 +11,7 @@ const main = (props) => {
         <Aux>
             <Switch>
                 <Route path = '/expenses' component={Expenses}/>
-                <Route path = "/" component = {Home} />
+                <Route exact path = "/" component = {Home} />
             </Switch>
         </Aux>
     )

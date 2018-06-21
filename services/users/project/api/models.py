@@ -15,6 +15,14 @@ class User(db.Model):
 
     def __repr__(self):
         return 'User {}'.format(self.public_id)
+    
+    def to_json(self):
+        return {
+            'id' : self.id,
+            'email' : self.email,
+            'created_at' : self.created_at,
+            'active' : self.active
+        }
 
     def encode_auth_token(self,user_id):
         try:
@@ -42,6 +50,6 @@ class User(db.Model):
             )
             return payload['sub']
         except jwt.ExpiredSignatureError:
-            return 'Signature expired. Please log in again'
+            return 'Signature expired. Please log in again.'
         except jwt.InvalidTokenError:
-            return 'Invalid token. Please log in again'
+            return 'Invalid token. Please log in again.'

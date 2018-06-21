@@ -37,21 +37,13 @@ const styles = theme => ({
 class Home extends Component {
     componentDidMount(){
         if(this.props.authenticated === true){
-            axios.post('/checkToken',{ token : this.props.token })
+            axios.get(`${process.env.REACT_APP_USERS_SERVICE_URL}/auth/status`,{ headers : { 'Content-Type' : 'application/json', Authorization : `Bearer ${this.props.token}`} })
                 .then(res => {
-                    if(res.status === 200)
+                    if(res.data.data.active === true)
                     this.props.history.replace('/expenses/expenseDetails');
+                    else this.props.logoutHandler()
                 })
-                .catch( e => {
-                    axios.post('/refreshToken',JSON.stringify({ user_id : this.props.user_id }),{ headers : { 'Content-Type' : 'application/json'}})
-                        .then( res => {
-                            if(res.status === 200)
-                            this.props.loginHandler({ token : res.data.token, user_id : res.data.user_id });
-                            this.props.history.replace('/expenses/expenseDetails');
-                        })
-                })
-            
-        }
+            }    
     }
     render(){
         const { classes } = this.props;

@@ -1,0 +1,21 @@
+{
+    "openapi" : "3.0.0",
+    "info" : {
+        "version" : "0.0.1",
+        "title" : "Users Service",
+        "description" : "Swagger spec for documenting the users service"
+    },
+    "servers" : [
+        {
+            "url" : "http://127.0.0.1"
+        }
+    ],
+    "paths" : {
+
+    },
+    "components" : {
+        "schemas" : {
+
+        }
+    }
+}

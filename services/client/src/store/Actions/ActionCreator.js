@@ -5,7 +5,6 @@ export const loggedIn = (data) => {
     return {
         type : ActionTypes.LOGIN,
         token : data.token,
-        user_id : data.user_id,
         login_time : Date.now()
     }
 } 

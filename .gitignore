@@ -1,1 +1,7 @@
 /postgresql/Dockerfile
+
+# dependencies
+/node_modules
+
+__pycache__
+env

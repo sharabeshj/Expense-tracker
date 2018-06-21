@@ -8,11 +8,13 @@ import PropTypes from 'prop-types';
 import Redirect from './ExpenseDetails/Redirect';
 import ExpenseDetail from './ExpenseDetails/ExpenseDetails';
 import Login from './ExpenseDetails/Login';
+import axios from 'axios';
 
 const queryString = require('../query-string');
 
 class Expense extends Component {
     handleLogout = (e) => {
+        axios.get(`${process.env.REACT_APP_USERS_SERVICE_URL}/auth/logout`,{ headers : { 'Content-Type' : 'application/json', Authorization : `Bearer ${this.props.token}`}})
         this.props.logoutHandler();
         this.props.logoutFyle();
     }
@@ -56,7 +58,8 @@ Expense.propTypes = {
 
 const mapStateToProps = state => {
     return {
-        authenticated: state.log.authenticated
+        authenticated: state.log.authenticated,
+        token : state.log.token
     }
 }
 

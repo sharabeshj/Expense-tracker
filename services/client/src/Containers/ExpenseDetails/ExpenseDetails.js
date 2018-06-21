@@ -79,13 +79,17 @@ class ExpenseDetail extends Component {
         }
     }
     componentDidMount(){
-            axios.post(`${process.env.REACT_APP_EXPENSE_SERVICE_URL}/checkToken`,{ token : this.props.token })
+            axios.get(`${process.env.REACT_APP_USERS_SERVICE_URL}/auth/status`,{ headers : { 'Content-Type' : 'application/json', Authorization : `Bearer ${this.props.token}`}})
                 .catch(e => {
-                    this.props.logoutHandler();
                     this.props.history.replace('/')
                 })
-                .then(() => {
+                .then((res) => {
+                    if(res.data.data.active === true)
                     return axios.get(`${process.env.REACT_APP_EXPENSE_SERVICE_URL}/expenses`,{ headers : { "x-access-token" : this.props.token }})
+                    else{
+                        this.props.logoutHandler();
+                    this.props.history.replace('/')
+                    }
                 })
                 .then( res => {
                     this.setState({ expensesDetails : res.data.expenses});
@@ -96,12 +100,12 @@ class ExpenseDetail extends Component {
         this.setState({ syncLoad : true, syncSuccess : false })
         axios.get(`${process.env.REACT_APP_EXPENSE_SERVICE_URL}/expensesFetchAPI`,{ headers : { "x-access-token" : this.props.token}})
             .then(res => {
-                axios.get(`${process.env.REACT_APP_EXPENSE_SERVICE_URL}/expenses`,{ headers : { "x-access-token" : this.props.token }})
-                .then( res => {
-                    this.setState({ expensesDetails : res.data.expenses,syncLoad : false, syncSuccess : true });
-                })
-                .catch(e => console.log(e));
-                })
+                return axios.get(`${process.env.REACT_APP_EXPENSE_SERVICE_URL}/expenses`,{ headers : { "x-access-token" : this.props.token }})
+            })
+            .then( res => {
+                this.setState({ expensesDetails : res.data.expenses,syncLoad : false, syncSuccess : true });
+            })
+            .catch(e => console.log(e));
     }
     handleExport = list => {
         this.setState({ open : true,list : list });
