@@ -11,6 +11,7 @@ auth_blueprint = Blueprint('auth',__name__)
 @auth_blueprint.route('/auth/register',methods = ['POST'])
 def register_user():
     post_data = request.get_json()
+    print(post_data)
     response_object = {
         'status' : 'fail',
         'message' : 'Invalid payload'
@@ -92,4 +93,5 @@ def get_user_status(resp):
         'message' : 'success',
         'data' : user.to_json()
     }
+    # print(response_object)
     return jsonify(response_object), 200

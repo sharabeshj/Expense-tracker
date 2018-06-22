@@ -19,7 +19,6 @@ class Expense(db.Model):
             'id' : self.id,
             'expense_details' : self.expense_details,
             'created_at' : self.created_at,
-            'updated_at' : self.updated_at,
             'ext_expense_id' : self.ext_expense_id,
             'user_id' : self.user_id
         }

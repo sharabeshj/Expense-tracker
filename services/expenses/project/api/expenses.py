@@ -18,7 +18,7 @@ def get_all_expenses(resp):
     response_object = {
         'status' : 'success',
         'data' : {
-            'expenses' : [ex.to_json() for ex in Expense.query.all()]
+            'expenses' : [ex.to_json() for ex in Expense.query.filter_by(user_id = resp['data']['id']).all()]
         }
     }
     return jsonify(response_object), 200
@@ -43,7 +43,7 @@ def TokenGen():
             url = '{0}/auth/register'.format(current_app.config['USERS_SERVICE_URL'])
             data = {}
             data['email'] = resCredDict['us_email']
-            response = requests.post(url = url,data = json.dumps(data))
+            response = requests.post(url = url,json = data,allow_redirects = True)
             print(response.text)
             responseDict = json.loads(response.text)
             if responseDict['status'] == 'success':
@@ -74,16 +74,17 @@ def fetchAPI(resp):
         'status' : 'fail',
         'message' : 'error occured'
     }
-    fyle_token = Fyle_tokens.query.filter_by(user_id = resp.id).first()
+    fyle_token = Fyle_tokens.query.filter_by(user_id = resp['data']['id']).first()
     tokens = json.loads(fyle_token.tokens)
     access_token = tokens['access_token']
-    res = requests.get(url = 'https://staging.fyle.in/api/extns/company', headers = { "x-auth-token" : access_token })
+    res = requests.get(url = 'https://staging.fyle.in/api/etxns/company', headers = { "x-auth-token" : access_token })
     resDict = json.loads(res.text)
+    # print(resDict)
     if res.status_code == 200:
         for expense in resDict:
             old_expense = Expense.query.filter_by(ext_expense_id = expense['tx_id']).first()
             if not old_expense:
-                new_expense = Expense(user_id = resp.id,expense_details = json.dumps(expense),created_at = expense['tx_txn_dt'],ext_expense_id = expense['tx_id'])
+                new_expense = Expense(user_id = resp['data']['id'],expense_details = json.dumps(expense),created_at = expense['tx_txn_dt'],ext_expense_id = expense['tx_id'])
                 db.session.add(new_expense)
                 db.session.commit()
         response_object['status'] = 'success'

@@ -14,4 +14,5 @@ def index(resp):
 
 @base_blueprint.route('/base/authorizationCredentials')
 def auth_cred():
+    print('heelo')
     return jsonify({ 'client_id' : os.environ.get('CLIENT_ID')})

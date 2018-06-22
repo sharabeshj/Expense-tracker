@@ -80,10 +80,8 @@ class ExpenseDetail extends Component {
     }
     componentDidMount(){
             axios.get(`${process.env.REACT_APP_USERS_SERVICE_URL}/auth/status`,{ headers : { 'Content-Type' : 'application/json', Authorization : `Bearer ${this.props.token}`}})
-                .catch(e => {
-                    this.props.history.replace('/')
-                })
                 .then((res) => {
+                    console.log(res.data)
                     if(res.data.data.active === true)
                     return axios.get(`${process.env.REACT_APP_EXPENSE_SERVICE_URL}/expenses`,{ headers : { 'Content-Type' : 'application/json', Authorization : `Bearer ${this.props.token}`}})
                     else{
@@ -92,7 +90,7 @@ class ExpenseDetail extends Component {
                     }
                 })
                 .then( res => {
-                    this.setState({ expensesDetails : res.data.expenses});
+                    this.setState({ expensesDetails : res.data.data.expenses});
                 })
         
         }

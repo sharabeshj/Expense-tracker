@@ -38,14 +38,12 @@ const styles = theme => ({
 
 class Home extends Component {
     componentDidMount(){
-        if(this.props.authenticated === true){
             axios.get(`${process.env.REACT_APP_USERS_SERVICE_URL}/auth/status`,{ headers : { 'Content-Type' : 'application/json', Authorization : `Bearer ${this.props.token}`} })
                 .then(res => {
                     if(res.data.data.active === true)
                     this.props.history.replace('/expenses/expenseDetails');
                     else this.props.logoutHandler()
                 })
-            }
             if(!!this.props.location.search){
                 const query = queryString.parse(this.props.location.search);
                 this.props.authCodeHandler(query.code);
