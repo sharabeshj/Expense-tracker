@@ -1,3 +1,4 @@
+import os 
 from flask import Blueprint,jsonify
 
 from project.api.utils import authenticate
@@ -10,3 +11,7 @@ def index(resp):
     return jsonify({
         'message' : resp['data']['email']
     })
+
+@base_blueprint.route('/base/authorizationCredentials')
+def auth_cred():
+    return jsonify({ 'client_id' : os.environ.get('CLIENT_ID')})

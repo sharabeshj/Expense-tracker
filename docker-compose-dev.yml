@@ -77,7 +77,7 @@ services :
     depends_on:
       - users
   
-  exercises :
+  expenses :
     container_name : expenses
     build : 
       context : ./services/expenses
@@ -89,10 +89,13 @@ services :
     environment:
       - FLASK_DEBUG=1
       - APP_SETTINGS=project.config.DevelopmentConfig
-      - USERS_SERVICE_URL = http://users:5000
-      - SECRET_KEY = '\xd7Q~4\xd0_\x88,\xe9\xb5\x7f5gc\x11\xef\xa9V}#\xad\x89\xd5\xf2'
+      - USERS_SERVICE_URL=http://users:5000
+      - SECRET_KEY=\xd7Q~4\xd0_\x88,\xe9\xb5\x7f5gc\x11\xef\xa9V}#\xad\x89\xd5\xf2
       - DATABASE_URL=postgres://postgres:postgres@expenses-db:5432/expenses_dev
       - DATABASE_TEST_URL = postgres://postgres:postgres@expenses-db:5432/expenses_test
+      - CLIENT_ID=tpaWTytgNOxUO
+      - CLIENT_SECRET=sharabesh
+  
 
     depends_on:
       - users

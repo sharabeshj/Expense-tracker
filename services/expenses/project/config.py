@@ -5,7 +5,7 @@ class BaseConfig:
     TESTING = False
     DEBUG_TB_ENABLED = False
     DEBUG_TB_INTERCEPT_REDIRECTS = False
-    USERS_SERVICES_URL = os.environ.get('USERS_SERVICE_URL')
+    USERS_SERVICE_URL = os.environ.get('USERS_SERVICE_URL')
     SECRET_KEY = os.environ.get('SECRET_KEY')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 

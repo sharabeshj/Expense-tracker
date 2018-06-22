@@ -8,7 +8,6 @@ class Expense(db.Model):
     id = db.Column(db.Integer,primary_key = True)
     expense_details = db.Column(JSON)
     created_at = db.Column(db.DateTime)
-    updated_at = db.Column(db.DateTime)
     ext_expense_id = db.Column(db.String)
     user_id = db.Column(db.Integer,nullable = False)
     

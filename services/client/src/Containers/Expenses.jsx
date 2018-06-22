@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from 'react-redux';
-import { logout,authCodeHandler,logoutFyle } from '../store/Actions/ActionCreator';
+import { logout,logoutFyle } from '../store/Actions/ActionCreator';
 import Switch from '@material-ui/core/Switch';
 import { Switch as Sw,Route } from 'react-router-dom';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -10,20 +10,13 @@ import ExpenseDetail from './ExpenseDetails/ExpenseDetails';
 import Login from './ExpenseDetails/Login';
 import axios from 'axios';
 
-const queryString = require('../query-string');
+
 
 class Expense extends Component {
     handleLogout = (e) => {
         axios.get(`${process.env.REACT_APP_USERS_SERVICE_URL}/auth/logout`,{ headers : { 'Content-Type' : 'application/json', Authorization : `Bearer ${this.props.token}`}})
         this.props.logoutHandler();
         this.props.logoutFyle();
-    }
-    componentDidMount(){
-        if(!!this.props.location.search){
-            const query = queryString.parse(this.props.location.search);
-            this.props.authCodeHandler(query.code);
-            this.props.history.replace('/expenses/login');
-        }
     }
     componentWillReceiveProps(nextProps){
         if(nextProps.authenticated === false){
@@ -66,7 +59,6 @@ const mapStateToProps = state => {
 const mapDispatchToProps = (dispatch) => {
     return {
         logoutHandler: () => dispatch(logout()),
-        authCodeHandler : (code) => dispatch(authCodeHandler(code)),
         logoutFyle : () => dispatch(logoutFyle())
     }
 }

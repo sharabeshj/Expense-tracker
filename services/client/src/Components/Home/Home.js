@@ -8,7 +8,9 @@ import pink from '@material-ui/core/colors/pink';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import axios from 'axios';
-import { logout, loggedIn } from '../../store/Actions/ActionCreator';
+import { logout, loggedIn,authCodeHandler } from '../../store/Actions/ActionCreator';
+
+const queryString = require('../../query-string');
  
 const styles = theme => ({
     container : {
@@ -43,6 +45,11 @@ class Home extends Component {
                     this.props.history.replace('/expenses/expenseDetails');
                     else this.props.logoutHandler()
                 })
+            }
+            if(!!this.props.location.search){
+                const query = queryString.parse(this.props.location.search);
+                this.props.authCodeHandler(query.code);
+                this.props.history.replace('/expenses/login');
             }    
     }
     render(){
@@ -73,7 +80,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         logoutHandler : () => dispatch(logout),
-        loginHandler : (data) => dispatch(loggedIn(data))
+        loginHandler : (data) => dispatch(loggedIn(data)),
+        authCodeHandler : (code) => dispatch(authCodeHandler(code))
     }
 }
 

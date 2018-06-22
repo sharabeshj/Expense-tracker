@@ -85,7 +85,7 @@ class ExpenseDetail extends Component {
                 })
                 .then((res) => {
                     if(res.data.data.active === true)
-                    return axios.get(`${process.env.REACT_APP_EXPENSE_SERVICE_URL}/expenses`,{ headers : { "x-access-token" : this.props.token }})
+                    return axios.get(`${process.env.REACT_APP_EXPENSE_SERVICE_URL}/expenses`,{ headers : { 'Content-Type' : 'application/json', Authorization : `Bearer ${this.props.token}`}})
                     else{
                         this.props.logoutHandler();
                     this.props.history.replace('/')
@@ -98,9 +98,9 @@ class ExpenseDetail extends Component {
         }
     handleSync = (e) => {
         this.setState({ syncLoad : true, syncSuccess : false })
-        axios.get(`${process.env.REACT_APP_EXPENSE_SERVICE_URL}/expensesFetchAPI`,{ headers : { "x-access-token" : this.props.token}})
+        axios.get(`${process.env.REACT_APP_EXPENSE_SERVICE_URL}/expensesFetchAPI`,{ headers : { 'Content-Type' : 'application/json', Authorization : `Bearer ${this.props.token}`}})
             .then(res => {
-                return axios.get(`${process.env.REACT_APP_EXPENSE_SERVICE_URL}/expenses`,{ headers : { "x-access-token" : this.props.token }})
+                return axios.get(`${process.env.REACT_APP_EXPENSE_SERVICE_URL}/expenses`,{ headers : { 'Content-Type' : 'application/json', Authorization : `Bearer ${this.props.token}`}})
             })
             .then( res => {
                 this.setState({ expensesDetails : res.data.expenses,syncLoad : false, syncSuccess : true });
@@ -116,7 +116,7 @@ class ExpenseDetail extends Component {
     handleClick = (value) => {
         this.setState({ loading : true,success : false  })
         if(value === 'csv'){
-            axios({ method : 'post',url : `${process.env.REACT_APP_EXPENSE_SERVICE_URL}/expenses-csv`,timeout : 3600000, data : JSON.stringify({ list : this.state.list }),headers : { "x-access-token" : this.props.token,"Content-Type" : "application/json","Connection" : "keep-alive","keep-alive" : "timeout = 3600000,max = 100" }})
+            axios({ method : 'post',url : `${process.env.REACT_APP_EXPENSE_SERVICE_URL}/expenses-csv`, data : JSON.stringify({ list : this.state.list }), headers : { 'Content-Type' : 'application/json', Authorization : `Bearer ${this.props.token}`}})
                 .then(res => {
                     this.setState({ loading : false, success : true })
                 })
