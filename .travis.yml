@@ -4,7 +4,18 @@ services :
   - docker
 
 env :
-  DOCKER_COMPOSE_VERSION : 1.21.2
+  global :
+    - DOCKER_COMPOSE_VERSION : 1.21.2
+    - COMMIT=${TRAVIS_COMMIT::8}
+    - MAIN_REPO=https://github.com/sharabeshj/Expense-tracker.git
+    - USERS=expense-track-users
+    - USERS_REPO=${MAIN_REPO}#${TRAVIS_BRANCH}:services/users
+    - USERS_DB=expense-tracker-users-db
+    - USERS_DB_REPO=${MAIN_REPO}#${TRAVIS_BRANCH}:services/users/project/db
+    - CLIENT=expense-track-client
+    - CLIENT_REPO=${MAIN_REPO}#${TRAVIS_BRANCH}:services/client
+    - SWAGGER=expense-tracker-swagger
+    - SWAGGER_REPO=${MAIN_REPO}#${TRAVIS_BRANCH}:services/swagger
 
 before_install:
   - sudo rm /usr/local/bin/docker-compose
@@ -15,12 +26,15 @@ before_install:
 before_script : 
   - export REACT_APP_EXPENSE_SERVICE_URL=http://127.0.0.1
   - export REACT_APP_USERS_SERVICE_URL=http://127.0.0.1
-  - docker-compose -f docker-compose-dev.yml up --build -d
+  - export DOCKER_ENV=$(if["$TRAVIS_BRANCH" == "production"]; then echo "prod";
+  else echo "stage"; fi)
+  - docker-compose -f docker-compose-$DOCKER_ENV.yml up --build -d
+
 
 script : 
-  - bash test.sh stage
-  - docker-compose -f docker-compose-dev.yml run users python manage.py test
-  - docker-compose -f docker-compose-dev.yml run users flake8 project
+  - bash test.sh $DOCKER_ENV
+
 
 after_script : 
-  - docker-compose -f docker-compose-dev.yml down
+  - docker-compose -f docker-compose-$DOCKER_ENV.yml down
+  - bash ./docker-push.sh
