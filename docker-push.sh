@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ -z "$TRAVIS_PULL_REQUEST"] || [ "$TRAVIS_PULL_REQUEST" == "false" ]
+if [ -z "$TRAVIS_PULL_REQUEST" ] || [ "$TRAVIS_PULL_REQUEST" == "false" ]
 then
     if [ "$TRAVIS_BRANCH" == "staging" ] || \
         [ "$TRAVIS_BRANCH" == "production" ]
@@ -18,7 +18,7 @@ then
         export REPO=$AWS_ACCOUNT_ID.dkr.ecr.us-east-2.amazonaws.com
     fi
 
-    if [ "$TRAVIS_BRANCH" == "staging"]
+    if [ "$TRAVIS_BRANCH" == "staging" ]
     then
         export REACT_APP_USERS_SERVICE_URL="http://expense-tracker-staging-alb-2128905637.us-east-2.elb.amazonaws.com"
     fi  
