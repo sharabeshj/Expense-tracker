@@ -1,30 +1,27 @@
 #!/bin/sh
 
-if [ -z "$TRAVIS_PULL_REQUEST"] || ["$TRAVIS_PULL_REQUEST" == "false"]
+if [ -z "$TRAVIS_PULL_REQUEST" ] || [ "$TRAVIS_PULL_REQUEST" == "false" ]
 then
-    if ["$TRAVIS_BRANCH" == "staging"] || \
-        ["$TRAVIS_BRANCH" == "production"]
+    if [ "$TRAVIS_BRANCH" == "staging" ] || \
+        [ "$TRAVIS_BRANCH" == "production" ]
     then 
         curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
         
         unzip awscli-bundle.zip
         ./awscli-bundle/install -b ~/bin/aws
-    export PATH=~/bin:$PATH
-    export AWS_ACCOUNT_ID=467016297208
-    export AWS_ACCESS_KEY_ID=AKIAJE2YFQ37KMS25VJQ
-    export AWS_SECRET_ACCESS_KEY=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
-    eval $(aws ecr get-login --region us-east-2 --no-include-email)
-    export TAG=$TRAVIS_BRANCH
-    export REPO=$AWS_ACCOUNT_ID.dkr.ecr.us-east-2.amazonaws.com
+        export PATH=~/bin:$PATH
+        eval $(aws ecr get-login --region us-east-2 --no-include-email)
+        export TAG=$TRAVIS_BRANCH
+        export REPO=$AWS_ACCOUNT_ID.dkr.ecr.us-east-2.amazonaws.com
     fi
 
-    if [ "$TRAVIS_BRANCH" == "staging"]
+    if [ "$TRAVIS_BRANCH" == "staging" ]
     then
         export REACT_APP_USERS_SERVICE_URL="http://expense-tracker-staging-alb-2128905637.us-east-2.elb.amazonaws.com"
     fi  
 
-    if ["$TRAVIS_BRANCH" == "staging"] || \
-       ["$TRAVIS_BRANCH" == "production"] 
+    if [ "$TRAVIS_BRANCH" == "staging" ] || \
+       [ "$TRAVIS_BRANCH" == "production" ] 
     then
         #users
         docker build $USERS_REPO -t $USERS:$COMMIT -f Dockerfile-$DOCKER_ENV

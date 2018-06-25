@@ -10,11 +10,11 @@ env :
     - MAIN_REPO=https://github.com/sharabeshj/Expense-tracker.git
     - USERS=expense-track-users
     - USERS_REPO=${MAIN_REPO}#${TRAVIS_BRANCH}:services/users
-    - USERS_DB=expense-tracker-users-db
+    - USERS_DB=expense-track-users_db
     - USERS_DB_REPO=${MAIN_REPO}#${TRAVIS_BRANCH}:services/users/project/db
     - CLIENT=expense-track-client
     - CLIENT_REPO=${MAIN_REPO}#${TRAVIS_BRANCH}:services/client
-    - SWAGGER=expense-tracker-swagger
+    - SWAGGER=expense-track-swagger
     - SWAGGER_REPO=${MAIN_REPO}#${TRAVIS_BRANCH}:services/swagger
 
 before_install:
