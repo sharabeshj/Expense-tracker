@@ -1,21 +1,114 @@
-{
-    "openapi" : "3.0.0",
-    "info" : {
-        "version" : "0.0.1",
-        "title" : "Users Service",
-        "description" : "Swagger spec for documenting the users service"
-    },
-    "servers" : [
-        {
-            "url" : "http://127.0.0.1"
+{"paths": {
+    "/users" : {
+        "get" : {
+            "summary" : "Just a sanity check",
+            "responses" : {
+                "200" : {
+                    "description" : "success"
+                }
+            }
         }
-    ],
-    "paths" : {
-
     },
-    "components" : {
-        "schemas" : {
+    "/auth/register" : {
+        "post" : {
+            "summary" : "Create a new user",
+            "schema" : {
+                "$ref" : "#/components/schemas/user"
+            },
+            "requestBody" : {
+                "description" : "User to add",
+                "required" : true,
+                "content" : {
+                    "apllication/json" : {
+                        "schema" : {
+                            "type" : "object",
+                            "required" : [
+                                "email"
+                            ],
+                            "properties" : {
+                                "email" : {
+                                    "type" : "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "responses" : {
+                "200" : {
+                    "description" : "user object"
+                }
+            }
+        }
+    },
+    "/auth/login" : {
+        "post" : {
+            "summary" : "Logs in a user in",
+            "schema" : {
+                "$ref" : "#/components/schemas/user"
+            },
+            "requestBody" : {
+                "description" : "User to log in ",
+                "required" : true,
+                "content" : {
+                    "apllication/json" : {
+                        "schema" : {
 
+                        }
+                    }
+                }
+            },
+            "responses" : {
+                "200" : {
+                    "description" : "Successfully logged in "
+                }
+            }
+        }
+    },
+    "/auth/status" : {
+        "get" : {
+            "summary" : "Returns the logged in user's status",
+            "security" : [
+                {
+                    "bearerAuth" : []
+                }
+            ],
+            "responses" : {
+                "200" : {
+                    "description" : "user object"
+                }
+            }
+         }
+    },
+    "/auth/logout" : {
+        "get" : {
+            "summary" : "Logs a user out",
+            "security" : [
+                {
+                    "bearerAuth" : []
+                }
+            ],
+            "responses" : {
+                "200" : {
+                    "description" : "Successfully logged out"
+                }
+            }
         }
     }
-}
+
+}, "info": {"version": "0.0.1", "title": "Users Service", "description": "Swagger spec for documenting the users service"}, "openapi": "3.0.0", "components": {
+    "securitySchemas" :{
+        "bearerAuth" : {
+            "type" : "http",
+            "scheme" : "bearer"
+        }
+    },
+    "schemas": {
+    "user" : {
+        "properties" : {
+            "email" : {
+                "type" : "string"
+            }
+        }
+    }
+}}, "servers": [{"url": "http://127.0.0.1"}]}

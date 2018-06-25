@@ -56,3 +56,15 @@ services :
       - users
     links : 
       - users
+
+  swagger : 
+    container_name : swagger
+    build : 
+      context : ./services/swagger
+      dockerfile : Dockerfile-prod
+    expose : 
+      - 8000
+    environment : 
+      - URL=swagger.json
+    depends_on:
+      - users
