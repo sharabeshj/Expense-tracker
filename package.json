@@ -1,0 +1,22 @@
+{
+  "name": "expense-track",
+  "version": "1.0.0",
+  "description": "[![Build\tStatus](https://travis-ci.org/sharabeshj/ Expense-tracker.svg?branch=change-of-project-structure)](https://travis-ci.org/sharabeshj/Expense-tracker)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sharabeshj/Expense-tracker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sharabeshj/Expense-tracker/issues"
+  },
+  "homepage": "https://github.com/sharabeshj/Expense-tracker#readme",
+  "devDependencies": {
+    "testcafe": "^0.20.3"
+  }
+}
