@@ -5,7 +5,7 @@ services :
 
 env :
   global :
-    - DOCKER_COMPOSE_VERSION : 1.21.2
+    - DOCKER_COMPOSE_VERSION = 1.21.2
     - COMMIT=${TRAVIS_COMMIT::8}
     - MAIN_REPO=https://github.com/sharabeshj/Expense-tracker.git
     - USERS=expense-track-users
@@ -37,4 +37,6 @@ script :
 
 after_script : 
   - docker-compose -f docker-compose-$DOCKER_ENV.yml down
-  - bash ./docker-push.sh
+
+after_success:  
+- bash ./docker-push.sh
