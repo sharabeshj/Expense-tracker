@@ -18,6 +18,11 @@ then
     export REPO=$AWS_ACCOUNT_ID.dkr.ecr.us-east-2.amazonaws.com
     fi
 
+    if [ "$TRAVIS_BRANCH" == "staging"]
+    then
+        export REACT_APP_USERS_SERVICE_URL="http://expense-tracker-staging-alb-2128905637.us-east-2.elb.amazonaws.com"
+    fi  
+
     if ["$TRAVIS_BRANCH" == "staging"] || \
        ["$TRAVIS_BRANCH" == "production"] 
     then
@@ -30,7 +35,7 @@ then
         docker tag $USERS_DB:$COMMIT $REPO/$USERS_DB:$TAG
         docker push $REPO/$USERS_DB:$TAG
         #client
-        docker build $CLIENT_REPO -t $CLIENT:$COMMIT -f Dockerfile-$DOCKER_ENV --build-arg REACT_APP_USERS_SERVICE_URL=TBD
+        docker build $CLIENT_REPO -t $CLIENT:$COMMIT -f Dockerfile-$DOCKER_ENV --build-arg REACT_APP_USERS_SERVICE_URL=$REACT_APP_USERS_SERVICE_URL
         docker tag $CLIENT:$COMMIT $REPO/$CLIENT:$TAG
         docker push $REPO/$CLIENT:$TAG
         #swagger
@@ -39,3 +44,5 @@ then
         docker push $REPO/$SWAGGER:$TAG
     fi
 fi
+
+  

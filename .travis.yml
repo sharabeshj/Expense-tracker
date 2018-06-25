@@ -5,7 +5,7 @@ services :
 
 env :
   global :
-    - DOCKER_COMPOSE_VERSION : 1.21.2
+    - DOCKER_COMPOSE_VERSION=1.21.2
     - COMMIT=${TRAVIS_COMMIT::8}
     - MAIN_REPO=https://github.com/sharabeshj/Expense-tracker.git
     - USERS=expense-track-users
@@ -26,8 +26,7 @@ before_install:
 before_script : 
   - export REACT_APP_EXPENSE_SERVICE_URL=http://127.0.0.1
   - export REACT_APP_USERS_SERVICE_URL=http://127.0.0.1
-  - export DOCKER_ENV=$(if["$TRAVIS_BRANCH" == "production"]; then echo "prod";
-  else echo "stage"; fi)
+  - export DOCKER_ENV=$(if ["$TRAVIS_BRANCH" == "production"]; then echo "prod"; else echo "stage"; fi)
   - docker-compose -f docker-compose-$DOCKER_ENV.yml up --build -d
 
 
@@ -37,4 +36,6 @@ script :
 
 after_script : 
   - docker-compose -f docker-compose-$DOCKER_ENV.yml down
-  - bash ./docker-push.sh
+
+after_success:  
+- bash ./docker-push.sh

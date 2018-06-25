@@ -58,7 +58,7 @@ services :
       - client
   
   swagger : 
-    container_name=swagger
+    container_name : swagger
     build:
       context : ./services/swagger
       dockerfile : Dockerfile-stage
