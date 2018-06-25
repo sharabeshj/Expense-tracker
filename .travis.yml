@@ -26,7 +26,7 @@ before_install:
 before_script : 
   - export REACT_APP_EXPENSE_SERVICE_URL=http://127.0.0.1
   - export REACT_APP_USERS_SERVICE_URL=http://127.0.0.1
-  - export DOCKER_ENV=$(if["$TRAVIS_BRANCH" == "production"]; then echo "prod"; else echo "stage"; fi)
+  - export DOCKER_ENV=$(if ["$TRAVIS_BRANCH" == "production"]; then echo "prod"; else echo "stage"; fi)
   - docker-compose -f docker-compose-$DOCKER_ENV.yml up --build -d
 
 
