@@ -10,14 +10,14 @@ then
         unzip awscli-bundle.zip
         ./awscli-bundle/install -b ~/bin/aws
         export PATH=~/bin:$PATH
-        eval $(aws ecr get-login --region us-east-2 --no-include-email)
+        eval $(aws ecr get-login --region ap-south-1 --no-include-email)
         export TAG=$TRAVIS_BRANCH
-        export REPO=$AWS_ACCOUNT_ID.dkr.ecr.us-east-2.amazonaws.com
+        export REPO=$AWS_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com
     fi
 
     if [ "$TRAVIS_BRANCH" == "staging" ]
     then
-        export REACT_APP_USERS_SERVICE_URL="http://expense-tracker-staging-alb-2128905637.us-east-2.elb.amazonaws.com"
+        export REACT_APP_USERS_SERVICE_URL="http://expense-tracker-staging-alb-1895113502.ap-south-1.elb.amazonaws.com"
     fi  
 
     if [ "$TRAVIS_BRANCH" == "staging" ] || \
