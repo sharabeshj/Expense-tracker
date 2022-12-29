@@ -17,6 +17,6 @@
   },
   "homepage": "https://github.com/sharabeshj/Expense-tracker#readme",
   "devDependencies": {
-    "testcafe": "^0.20.3"
+    "testcafe": "^2.2.0"
   }
 }
